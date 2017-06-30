@@ -305,7 +305,7 @@
                   <goal>start</goal>
                 </goals>
                 <configuration>
-                  <showLogs>true</showLogs>
+                  <showLogs>false</showLogs>
                   <images>
                     <image>
                       <name>quay.io/coreos/etcd:v${etcd.version.major}.${etcd.version.minor}.${etcd.version.build}</name>
