@@ -20,24 +20,28 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import com.github.lburgazzoli.etcd.v3.api.PutResponse;
+import com.github.lburgazzoli.etcd.v3.api.RangeResponse;
+import com.github.lburgazzoli.etcd.v3.impl.KV;
 import com.github.lburgazzoli.etcd.v3.resolver.NameResolverFactory;
 import io.grpc.ManagedChannel;
-import io.grpc.netty.NettyChannelBuilder;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.grpc.NameResolver;
 import io.netty.handler.ssl.SslContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Etcd {
+import static java.util.Optional.ofNullable;
+
+public class Etcd implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Etcd.class);
 
     private final Configuration configuration;
     private ManagedChannel managedChannel;
-    private KVClient kvClient;
+    private KV kv;
 
     /**
      * Private ctor
@@ -49,35 +53,57 @@ public class Etcd {
     /**
      * Close and release resources
      */
-    public void close() {
-        if (managedChannel == null) {
-            managedChannel.shutdown();
+    @Override
+    public void close() throws Exception {
+        try {
+            if (kv != null) {
+                kv.close();
+            }
+        } finally {
+            if (managedChannel == null) {
+                managedChannel.shutdown();
+            }
         }
     }
+
+    // **********************************
+    // Operation
+    // **********************************
+
+    public CompletableFuture<PutResponse> put(String key, String value) {
+        return kv().put(key.getBytes(), value.getBytes());
+    }
+
+    public CompletableFuture<RangeResponse> range(String key) {
+        return kv().range(key.getBytes());
+    }
+
+    // **********************************
+    //
+    // **********************************
 
     public static Builder builder() {
         return new Builder();
     }
 
     // **********************************
-    // Clients
+    //
     // **********************************
 
-    public synchronized KVClient kvClient() {
+    private synchronized ManagedChannel managedChannel() {
         if (managedChannel == null) {
-            managedChannel = NettyChannelBuilder.forTarget(configuration.getResolver())
-                .channelType(NioSocketChannel.class)
-                .nameResolverFactory(new NameResolverFactory(configuration))
-                .sslContext(configuration.sslContext)
-                .usePlaintext(configuration.sslContext == null)
-                .build();
+            managedChannel = EtcdUtils.managedChannel(configuration);
         }
 
-        if (kvClient == null) {
-            kvClient = new KVClient(managedChannel);
+        return managedChannel;
+    }
+
+    private synchronized KV kv() {
+        if (kv == null) {
+            kv = new KV(managedChannel());
         }
 
-        return kvClient;
+        return kv;
     }
 
     // **********************************
@@ -88,20 +114,30 @@ public class Etcd {
         private String resolver;
         private Set<String> endpoints;
         private SslContext sslContext;
+        private boolean useSsl;
+        private NameResolver.Factory nameResolverFactory;
 
         private Configuration() {
         }
 
-        public Set<String> getEndpoints() {
+        public Set<String> endpoints() {
             return endpoints;
         }
 
-        public String getResolver() {
+        public String resolver() {
             return resolver;
         }
 
-        public SslContext getSslContext() {
+        public SslContext sslContext() {
             return sslContext;
+        }
+
+        public boolean isUseSsl() {
+            return useSsl;
+        }
+
+        public NameResolver.Factory nameResolverFactory() {
+            return nameResolverFactory;
         }
     }
 
@@ -116,6 +152,8 @@ public class Etcd {
         private Set<String> endpoints;
         private String resolver;
         private SslContext sslContext;
+        private Boolean useSsl;
+        private NameResolver.Factory nameResolverFactory;
 
         private Builder() {
         }
@@ -167,6 +205,24 @@ public class Etcd {
             return sslContext;
         }
 
+        public Builder useSsl(Boolean useSsl) {
+            this.useSsl = useSsl;
+            return this;
+        }
+
+        public Boolean useSsl() {
+            return useSsl;
+        }
+
+        public NameResolver.Factory nameResolverFactory() {
+            return nameResolverFactory;
+        }
+
+        public Builder setNameResolverFactory(NameResolver.Factory nameResolverFactory) {
+            this.nameResolverFactory = nameResolverFactory;
+            return this;
+        }
+
         /**
          * Constructs a new {@link Etcd} client.
          *
@@ -174,9 +230,11 @@ public class Etcd {
          */
         public Etcd build() {
             Configuration config = new Configuration();
-            config.resolver = Optional.ofNullable(resolver).orElse(EtcdConstants.DEFAULT_RESOLVER);
-            config.endpoints = Optional.ofNullable(endpoints).orElseGet(Collections::emptySet);
-            config.sslContext = Optional.ofNullable(sslContext).orElse(null);
+            config.resolver = ofNullable(resolver).orElse(EtcdConstants.DEFAULT_RESOLVER);
+            config.endpoints = ofNullable(endpoints).orElseGet(Collections::emptySet);
+            config.sslContext = ofNullable(sslContext).orElse(null);
+            config.useSsl = ofNullable(useSsl).orElse(Boolean.TRUE);
+            config.nameResolverFactory = ofNullable(nameResolverFactory).orElseGet(() -> new NameResolverFactory(config.endpoints));
 
             return new Etcd(config);
         }

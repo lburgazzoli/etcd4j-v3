@@ -18,11 +18,30 @@ package com.github.lburgazzoli.etcd.v3;
 
 import java.util.Optional;
 
+import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
+import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.AbstractStub;
+import io.netty.channel.socket.nio.NioSocketChannel;
+
+import static java.util.Optional.ofNullable;
 
 final class EtcdUtils {
     private EtcdUtils() {
+    }
+
+    public static ManagedChannel managedChannel(Etcd.Configuration configuration) {
+        NettyChannelBuilder builder = NettyChannelBuilder.forTarget(configuration.resolver())
+            .channelType(NioSocketChannel.class);
+
+        ofNullable(configuration.nameResolverFactory()).ifPresent(builder::nameResolverFactory);
+        ofNullable(configuration.sslContext()).ifPresent(builder::sslContext);
+
+        if (!configuration.isUseSsl()) {
+            builder.usePlaintext(true);
+        }
+
+        return builder.build();
     }
 
     static final <T extends AbstractStub<T>> T configureStub(T stub, Optional<String> token) {

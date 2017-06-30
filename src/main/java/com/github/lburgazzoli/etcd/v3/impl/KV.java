@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.etcd.v3;
+package com.github.lburgazzoli.etcd.v3.impl;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -27,29 +27,41 @@ import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import net.javacrumbs.futureconverter.java8guava.FutureConverter;
 
-public final class KVClient {
+public final class KV implements AutoCloseable {
     private final ManagedChannel channel;
     private final KVGrpc.KVFutureStub stub;
 
-    KVClient(ManagedChannel channel) {
+    public KV(ManagedChannel channel) {
         this.channel = channel;
         this.stub = KVGrpc.newFutureStub(this.channel);
     }
 
-    public CompletableFuture<PutResponse> put(String key, String value) {
+    // *****************************
+    // Actions
+    // *****************************
+
+    public CompletableFuture<PutResponse> put(byte[] key, byte[] value) {
         PutRequest request = PutRequest.newBuilder()
-            .setKey(ByteString.copyFrom(key.getBytes()))
-            .setValue(ByteString.copyFrom(value.getBytes()))
+            .setKey(ByteString.copyFrom(key))
+            .setValue(ByteString.copyFrom(value))
             .build();
 
         return FutureConverter.toCompletableFuture(stub.put(request));
     }
 
-    public CompletableFuture<RangeResponse> range(String key) {
+    public CompletableFuture<RangeResponse> range(byte[] key) {
         RangeRequest request = RangeRequest.newBuilder()
-            .setKey(ByteString.copyFrom(key.getBytes()))
+            .setKey(ByteString.copyFrom(key))
             .build();
 
         return FutureConverter.toCompletableFuture(stub.range(request));
+    }
+
+    // *****************************
+    // Cleanup
+    // *****************************
+
+    @Override
+    public void close() throws Exception{
     }
 }

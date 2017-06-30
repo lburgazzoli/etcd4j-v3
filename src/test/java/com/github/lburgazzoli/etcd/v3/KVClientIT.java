@@ -30,7 +30,7 @@ public class KVClientIT {
     public void test() {
         LOGGER.info("URL: {}", ETCD_URI);
 
-        Etcd etcd = Etcd.builder().endpoints(ETCD_URI).build();
+        Etcd etcd = Etcd.builder().useSsl(false).endpoints(ETCD_URI).build();
         LOGGER.info("PUT: {}", etcd.kvClient().put("key", "value").join());
         LOGGER.info("RANGE: {}", etcd.kvClient().range("key").join());
     }
