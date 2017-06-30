@@ -287,9 +287,12 @@
     <profile>
       <id>docker</id>
       <activation>
+        <activeByDefault>false</activeByDefault>
+        <!--
         <property>
           <name>!docker.skip</name>
         </property>
+        -->
       </activation>
       <build>
         <plugins>
@@ -305,7 +308,7 @@
                   <goal>start</goal>
                 </goals>
                 <configuration>
-                  <showLogs>false</showLogs>
+                  <showLogs>true</showLogs>
                   <images>
                     <image>
                       <name>quay.io/coreos/etcd:v${etcd.version.major}.${etcd.version.minor}.${etcd.version.build}</name>
@@ -326,6 +329,24 @@
                         <cmd>
                           <exec>
                             <arg>etcd</arg>
+                            <arg>-name</arg>
+                            <arg>etcdv3</arg>
+                            <arg>-advertise-client-urls</arg>
+                            <arg>http://127.0.0.1:2379,http://127.0.0.1:4001</arg>
+                            <arg>-advertise-client-urls</arg>
+                            <arg>http://127.0.0.1:2379,http://127.0.0.1:4001</arg>
+                            <arg>-listen-client-urls</arg>
+                            <arg>http://0.0.0.0:2379,http://0.0.0.0:4001</arg>
+                            <arg>-initial-advertise-peer-urls</arg>
+                            <arg>http://127.0.0.1:2380</arg>
+                            <arg>-listen-peer-urls</arg>
+                            <arg>http://0.0.0.0:2380</arg>
+                            <arg>-initial-cluster-token</arg>
+                            <arg>etcdv3</arg>
+                            <arg>-initial-cluster</arg>
+                            <arg>etcdv3=http://127.0.0.1:2380</arg>
+                            <arg>-initial-cluster-state</arg>
+                            <arg>new</arg>
                           </exec>
                         </cmd>
                       </run>

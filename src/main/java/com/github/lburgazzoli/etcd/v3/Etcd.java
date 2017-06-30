@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.github.lburgazzoli.etcd.v3.resolver.NameResolverFactory;
+import io.grpc.ManagedChannel;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
@@ -35,6 +36,8 @@ public class Etcd {
     private static final Logger LOGGER = LoggerFactory.getLogger(Etcd.class);
 
     private final Configuration configuration;
+    private ManagedChannel managedChannel;
+    private KVClient kvClient;
 
     /**
      * Private ctor
@@ -47,6 +50,9 @@ public class Etcd {
      * Close and release resources
      */
     public void close() {
+        if (managedChannel == null) {
+            managedChannel.shutdown();
+        }
     }
 
     public static Builder builder() {
@@ -57,15 +63,21 @@ public class Etcd {
     // Clients
     // **********************************
 
-    public KVClient kvClient() {
-        return new KVClient(
-            NettyChannelBuilder.forTarget(configuration.getResolver())
+    public synchronized KVClient kvClient() {
+        if (managedChannel == null) {
+            managedChannel = NettyChannelBuilder.forTarget(configuration.getResolver())
                 .channelType(NioSocketChannel.class)
                 .nameResolverFactory(new NameResolverFactory(configuration))
                 .sslContext(configuration.sslContext)
                 .usePlaintext(configuration.sslContext == null)
-                .build()
-        );
+                .build();
+        }
+
+        if (kvClient == null) {
+            kvClient = new KVClient(managedChannel);
+        }
+
+        return kvClient;
     }
 
     // **********************************
