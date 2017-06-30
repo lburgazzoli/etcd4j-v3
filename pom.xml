@@ -273,6 +273,7 @@
   </build>
 
   <profiles>
+
     <profile>
       <id>disable-java8-doclint</id>
       <activation>
@@ -286,7 +287,9 @@
     <profile>
       <id>docker</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>!docker.skip</name>
+        </property>
       </activation>
       <build>
         <plugins>
@@ -308,9 +311,14 @@
                       <name>quay.io/coreos/etcd:v${etcd.version.major}.${etcd.version.minor}.${etcd.version.build}</name>
                       <alias>etcd</alias>
                       <run>
+                        <network>
+                          <mode>host</mode>
+                        </network>
+                        <!--
                         <ports>
                           <port>etcd.port:2379</port>
                         </ports>
+                        -->
                         <wait>
                           <log>embed: ready to serve client requests</log>
                           <time>20000</time>
@@ -335,6 +343,7 @@
             </executions>
           </plugin>
 
+          <!--
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
@@ -343,6 +352,7 @@
               <skipTests>true</skipTests>
             </configuration>
           </plugin>
+          -->
 
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -358,8 +368,8 @@
             </executions>
             <configuration>
               <systemProperties>
-                <etcd.port>${etcd.port}</etcd.port>
-                <etcd.host>127.0.0.1</etcd.host>
+                <test.etcd.port__>${etcd.port}</test.etcd.port__>
+                <test.etcd.host__>127.0.0.1</test.etcd.host__>
               </systemProperties>
             </configuration>
           </plugin>

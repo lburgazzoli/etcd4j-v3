@@ -20,14 +20,16 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KVClientTestIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KVClientTestIT.class);
-    private static final String ETCD_HOST = System.getProperty("etcd.host", "localhost");
-    private static final int ETCD_PORT = Integer.getInteger("etcd.port", 2379);
+public class KVClientIT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(KVClientIT.class);
+    private static final String ETCD_HOST = System.getProperty("test.etcd.host", "127.0.0.1");
+    private static final int ETCD_PORT = Integer.getInteger("test.etcd.port", 2379);
     private static final String ETCD_URI = String.format("%s:%d", ETCD_HOST, ETCD_PORT);
 
     @Test
     public void test() {
+        LOGGER.info("URL: {}", ETCD_URI);
+
         Etcd etcd = Etcd.builder().endpoints(ETCD_URI).build();
         LOGGER.info("PUT: {}", etcd.kvClient().put("key", "value").join());
         LOGGER.info("RANGE: {}", etcd.kvClient().range("key").join());
