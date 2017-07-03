@@ -30,6 +30,8 @@ import com.github.lburgazzoli.etcd.v3.impl.KV;
 import com.github.lburgazzoli.etcd.v3.resolver.NameResolverFactory;
 import io.grpc.ManagedChannel;
 import io.grpc.NameResolver;
+import io.grpc.netty.NettyChannelBuilder;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,15 +41,18 @@ import static java.util.Optional.ofNullable;
 public class Etcd implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Etcd.class);
 
-    private final Configuration configuration;
+    private String resolver;
+    private Set<String> endpoints;
+    private SslContext sslContext;
+    private NameResolver.Factory nameResolverFactory;
+
     private ManagedChannel managedChannel;
     private KV kv;
 
     /**
      * Private ctor
      */
-    private Etcd(Configuration configuration) {
-        this.configuration = configuration;
+    private Etcd() {
     }
 
     /**
@@ -74,7 +79,7 @@ public class Etcd implements AutoCloseable {
         return kv().put(key.getBytes(), value.getBytes());
     }
 
-    public CompletableFuture<RangeResponse> range(String key) {
+    public CompletableFuture<RangeResponse> get(String key) {
         return kv().range(key.getBytes());
     }
 
@@ -92,7 +97,17 @@ public class Etcd implements AutoCloseable {
 
     private synchronized ManagedChannel managedChannel() {
         if (managedChannel == null) {
-            managedChannel = EtcdUtils.managedChannel(configuration);
+            NettyChannelBuilder builder = NettyChannelBuilder.forTarget(this.resolver)
+                .channelType(NioSocketChannel.class);
+
+            ofNullable(nameResolverFactory).ifPresent(builder::nameResolverFactory);
+            ofNullable(sslContext).ifPresent(builder::sslContext);
+
+            if (sslContext == null) {
+                builder.usePlaintext(true);
+            }
+
+            managedChannel = builder.build();
         }
 
         return managedChannel;
@@ -107,41 +122,6 @@ public class Etcd implements AutoCloseable {
     }
 
     // **********************************
-    // Configuration
-    // **********************************
-
-    public static class Configuration {
-        private String resolver;
-        private Set<String> endpoints;
-        private SslContext sslContext;
-        private boolean useSsl;
-        private NameResolver.Factory nameResolverFactory;
-
-        private Configuration() {
-        }
-
-        public Set<String> endpoints() {
-            return endpoints;
-        }
-
-        public String resolver() {
-            return resolver;
-        }
-
-        public SslContext sslContext() {
-            return sslContext;
-        }
-
-        public boolean isUseSsl() {
-            return useSsl;
-        }
-
-        public NameResolver.Factory nameResolverFactory() {
-            return nameResolverFactory;
-        }
-    }
-
-    // **********************************
     // Builder
     // **********************************
 
@@ -152,7 +132,6 @@ public class Etcd implements AutoCloseable {
         private Set<String> endpoints;
         private String resolver;
         private SslContext sslContext;
-        private Boolean useSsl;
         private NameResolver.Factory nameResolverFactory;
 
         private Builder() {
@@ -205,15 +184,6 @@ public class Etcd implements AutoCloseable {
             return sslContext;
         }
 
-        public Builder useSsl(Boolean useSsl) {
-            this.useSsl = useSsl;
-            return this;
-        }
-
-        public Boolean useSsl() {
-            return useSsl;
-        }
-
         public NameResolver.Factory nameResolverFactory() {
             return nameResolverFactory;
         }
@@ -229,14 +199,13 @@ public class Etcd implements AutoCloseable {
          * @return A new Etcd client.
          */
         public Etcd build() {
-            Configuration config = new Configuration();
-            config.resolver = ofNullable(resolver).orElse(EtcdConstants.DEFAULT_RESOLVER);
-            config.endpoints = ofNullable(endpoints).orElseGet(Collections::emptySet);
-            config.sslContext = ofNullable(sslContext).orElse(null);
-            config.useSsl = ofNullable(useSsl).orElse(Boolean.TRUE);
-            config.nameResolverFactory = ofNullable(nameResolverFactory).orElseGet(() -> new NameResolverFactory(config.endpoints));
+            Etcd etcd = new Etcd();
+            etcd.resolver = ofNullable(resolver).orElse(EtcdConstants.DEFAULT_RESOLVER);
+            etcd.endpoints = ofNullable(endpoints).orElseGet(Collections::emptySet);
+            etcd.sslContext = ofNullable(sslContext).orElse(null);
+            etcd.nameResolverFactory = ofNullable(nameResolverFactory).orElseGet(() -> new NameResolverFactory(etcd.endpoints));
 
-            return new Etcd(config);
+            return etcd;
         }
     }
 }

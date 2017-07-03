@@ -16,6 +16,7 @@
  */
 package com.github.lburgazzoli.etcd.v3;
 
+import io.netty.handler.ssl.SslContext;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +28,20 @@ public class KVClientIT {
     private static final String ETCD_URI = String.format("%s:%d", ETCD_HOST, ETCD_PORT);
 
     @Test
-    public void test() {
+    public void test() throws Exception {
         LOGGER.info("URL: {}", ETCD_URI);
 
-        Etcd etcd = Etcd.builder().useSsl(false).endpoints(ETCD_URI).build();
-        LOGGER.info("PUT: {}", etcd.kvClient().put("key", "value").join());
-        LOGGER.info("RANGE: {}", etcd.kvClient().range("key").join());
+        SslContext context = null;
+
+        /*
+        GrpcSslContexts.forClient()
+            .sslProvider(SslProvider.OPENSSL)
+            .trustManager(new File("certs/ca.pem"))
+            .build();
+            */
+
+        Etcd etcd = Etcd.builder().sslContext(context).endpoints(ETCD_URI).build();
+        LOGGER.info("PUT: {}", etcd.put("key", "value").join());
+        LOGGER.info("RANGE: {}", etcd.get("key").join());
     }
 }
