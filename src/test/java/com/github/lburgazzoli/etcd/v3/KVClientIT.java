@@ -38,10 +38,10 @@ public class KVClientIT {
             .sslProvider(SslProvider.OPENSSL)
             .trustManager(new File("certs/ca.pem"))
             .build();
-            */
+        */
 
         Etcd etcd = Etcd.builder().sslContext(context).endpoints(ETCD_URI).build();
-        LOGGER.info("PUT: {}", etcd.put("key", "value").join());
-        LOGGER.info("RANGE: {}", etcd.get("key").join());
+        LOGGER.info("PUT: {}", etcd.put("key", "value").get());
+        LOGGER.info("RANGE: {}", etcd.get("key").get());
     }
 }

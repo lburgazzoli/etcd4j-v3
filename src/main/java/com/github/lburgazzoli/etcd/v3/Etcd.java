@@ -21,13 +21,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import com.github.lburgazzoli.etcd.v3.api.PutResponse;
-import com.github.lburgazzoli.etcd.v3.api.RangeResponse;
-import com.github.lburgazzoli.etcd.v3.impl.KV;
+import com.github.lburgazzoli.etcd.v3.request.GetRequest;
+import com.github.lburgazzoli.etcd.v3.request.PutRequest;
 import com.github.lburgazzoli.etcd.v3.resolver.NameResolverFactory;
+import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.NameResolver;
 import io.grpc.netty.NettyChannelBuilder;
@@ -47,7 +46,6 @@ public class Etcd implements AutoCloseable {
     private NameResolver.Factory nameResolverFactory;
 
     private ManagedChannel managedChannel;
-    private KV kv;
 
     /**
      * Private ctor
@@ -60,14 +58,8 @@ public class Etcd implements AutoCloseable {
      */
     @Override
     public void close() throws Exception {
-        try {
-            if (kv != null) {
-                kv.close();
-            }
-        } finally {
-            if (managedChannel == null) {
-                managedChannel.shutdown();
-            }
+        if (managedChannel == null) {
+            managedChannel.shutdown();
         }
     }
 
@@ -75,12 +67,19 @@ public class Etcd implements AutoCloseable {
     // Operation
     // **********************************
 
-    public CompletableFuture<PutResponse> put(String key, String value) {
-        return kv().put(key.getBytes(), value.getBytes());
+    public PutRequest put(String key, String value) {
+        return new PutRequest(
+            managedChannel(),
+            ByteString.copyFrom(key.getBytes()),
+            ByteString.copyFrom(value.getBytes())
+        );
     }
 
-    public CompletableFuture<RangeResponse> get(String key) {
-        return kv().range(key.getBytes());
+    public GetRequest get(String key) {
+        return new GetRequest(
+            managedChannel(),
+            ByteString.copyFrom(key.getBytes())
+        );
     }
 
     // **********************************
@@ -111,14 +110,6 @@ public class Etcd implements AutoCloseable {
         }
 
         return managedChannel;
-    }
-
-    private synchronized KV kv() {
-        if (kv == null) {
-            kv = new KV(managedChannel());
-        }
-
-        return kv;
     }
 
     // **********************************
