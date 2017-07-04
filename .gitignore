@@ -25,7 +25,6 @@ build-gradle/
 log/
 logs/
 target/
-data/
 out/
 certs/
 

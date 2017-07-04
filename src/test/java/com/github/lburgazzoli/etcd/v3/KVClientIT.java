@@ -34,11 +34,11 @@ public class KVClientIT {
         SslContext context = null;
 
         /*
-        GrpcSslContexts.forClient()
-            .sslProvider(SslProvider.OPENSSL)
+        context = GrpcSslContexts.forClient()
             .trustManager(new File("certs/ca.pem"))
+            .trustManager(InsecureTrustManagerFactory.INSTANCE)
             .build();
-        */
+            */
 
         Etcd etcd = Etcd.builder().sslContext(context).endpoints(ETCD_URI).build();
         LOGGER.info("PUT: {}", etcd.put("key", "value").get());

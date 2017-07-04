@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.etcd.v3.request;
+package com.github.lburgazzoli.etcd.v3.model;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -24,24 +24,27 @@ import io.grpc.ManagedChannel;
 
 import static net.javacrumbs.futureconverter.java8guava.FutureConverter.toCompletableFuture;
 
-public class GetRequest implements Request<GetResponse> {
+public class PutRequest implements Request<PutResponse> {
     private final ManagedChannel channel;
     private final KVGrpc.KVFutureStub stub;
     private final ByteString key;
+    private final ByteString value;
 
-    public GetRequest(ManagedChannel channel, ByteString key) {
+    public PutRequest(ManagedChannel channel, ByteString key, ByteString value) {
         this.channel = channel;
         this.stub = KVGrpc.newFutureStub(this.channel);
         this.key = key;
+        this.value = value;
     }
 
     @Override
-    public CompletableFuture<GetResponse> send() {
-        com.github.lburgazzoli.etcd.v3.api.RangeRequest request =
-            com.github.lburgazzoli.etcd.v3.api.RangeRequest.newBuilder()
+    public CompletableFuture<PutResponse> send() {
+        com.github.lburgazzoli.etcd.v3.api.PutRequest request =
+            com.github.lburgazzoli.etcd.v3.api.PutRequest.newBuilder()
                 .setKey(key)
+                .setValue(value)
                 .build();
 
-        return toCompletableFuture(stub.range(request)).thenApply(GetResponse::new);
+        return toCompletableFuture(stub.put(request)).thenApply(PutResponse::new);
     }
 }

@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.github.lburgazzoli.etcd.v3.request.GetRequest;
-import com.github.lburgazzoli.etcd.v3.request.PutRequest;
+import com.github.lburgazzoli.etcd.v3.model.GetRequest;
+import com.github.lburgazzoli.etcd.v3.model.PutRequest;
 import com.github.lburgazzoli.etcd.v3.resolver.NameResolverFactory;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;

@@ -14,18 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.etcd.v3.request;
+package com.github.lburgazzoli.etcd.v3.model;
 
-public interface Response {
-    Header getHeader();
+public class GetResponse extends AbstractResponse {
 
-    interface Header {
-        long getClusterId();
-
-        long getMemberId();
-
-        long getRevision();
-
-        long getRaftTerm();
+    public GetResponse(com.github.lburgazzoli.etcd.v3.api.RangeResponse response) {
+        super(response.getHeader());
     }
 }

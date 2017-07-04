@@ -14,11 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.etcd.v3.request;
+package com.github.lburgazzoli.etcd.v3.model;
 
-public class GetResponse extends AbstractResponse {
+public final class PutResponse extends AbstractResponse<com.github.lburgazzoli.etcd.v3.api.PutResponse> {
 
-    public GetResponse(com.github.lburgazzoli.etcd.v3.api.RangeResponse response) {
-        super(response.getHeader());
+    public PutResponse(com.github.lburgazzoli.etcd.v3.api.PutResponse response) {
+        super(response, response.getHeader());
+    }
+
+    // ***********************************************
+    // Properties
+    // ***********************************************
+
+    public KeyValue getPrevKv() {
+        return new KeyValue(response().getPrevKv());
+    }
+
+    public boolean hasPrevKv() {
+        return response().hasPrevKv();
     }
 }

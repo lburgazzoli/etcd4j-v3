@@ -14,11 +14,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.etcd.v3.request;
+package com.github.lburgazzoli.etcd.v3.model;
 
-public class PutResponse extends AbstractResponse {
+/**
+ * Etcd key value pair.
+ */
+public class KeyValue {
+    private com.github.lburgazzoli.etcd.v3.api.KeyValue kv;
 
-    public PutResponse(com.github.lburgazzoli.etcd.v3.api.PutResponse response) {
-        super(response.getHeader());
+    public KeyValue(com.github.lburgazzoli.etcd.v3.api.KeyValue kv) {
+        this.kv = kv;
+    }
+
+    public CharSequence getKey() {
+        return kv.getKey().toString();
+    }
+
+    public CharSequence getValue() {
+        return kv.getValue().toString();
+    }
+
+    public long getCreateRevision() {
+        return kv.getCreateRevision();
+    }
+
+    public long getModRevision() {
+        return kv.getModRevision();
+    }
+
+    public long getVersion() {
+        return kv.getVersion();
+    }
+
+    public long getLease() {
+        return kv.getLease();
     }
 }
