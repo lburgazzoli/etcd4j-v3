@@ -16,9 +16,26 @@
  */
 package com.github.lburgazzoli.etcd.v3.model;
 
-public class GetResponse extends AbstractResponse {
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class GetResponse extends AbstractResponse<com.github.lburgazzoli.etcd.v3.api.RangeResponse> {
 
     public GetResponse(com.github.lburgazzoli.etcd.v3.api.RangeResponse response) {
-        super(response.getHeader());
+        super(response, response.getHeader());
+    }
+
+    public List<KeyValue> getKvs() {
+        return response().getKvsList().stream()
+            .map(KeyValue::new)
+            .collect(Collectors.toList());
+    }
+
+    public boolean getMore() {
+        return response().getMore();
+    }
+
+    public long getCount() {
+        return response().getCount();
     }
 }

@@ -36,8 +36,8 @@
 
     <!-- etcd -->
     <etcd.version.major>3</etcd.version.major>
-    <etcd.version.minor>2</etcd.version.minor>
-    <etcd.version.build>1</etcd.version.build>
+    <etcd.version.minor>1</etcd.version.minor>
+    <etcd.version.build>8</etcd.version.build>
 
     <!-- plugins -->
     <build-helper-maven-plugin.version>1.11</build-helper-maven-plugin.version>
@@ -340,23 +340,11 @@
                           <exec>
                             <arg>etcd</arg>
                             <arg>-name</arg>
-                            <arg>etcdv3</arg>
-                            <arg>-advertise-client-urls</arg>
-                            <arg>http://127.0.0.1:2379,http://127.0.0.1:4001</arg>
+                            <arg>etcd4j</arg>
                             <arg>-advertise-client-urls</arg>
                             <arg>http://127.0.0.1:2379,http://127.0.0.1:4001</arg>
                             <arg>-listen-client-urls</arg>
                             <arg>http://0.0.0.0:2379,http://0.0.0.0:4001</arg>
-                            <arg>-initial-advertise-peer-urls</arg>
-                            <arg>http://127.0.0.1:2380</arg>
-                            <arg>-listen-peer-urls</arg>
-                            <arg>http://0.0.0.0:2380</arg>
-                            <arg>-initial-cluster-token</arg>
-                            <arg>etcdv3</arg>
-                            <arg>-initial-cluster</arg>
-                            <arg>etcdv3=http://127.0.0.1:2380</arg>
-                            <arg>-initial-cluster-state</arg>
-                            <arg>new</arg>
                           </exec>
                         </cmd>
                       </run>
@@ -370,6 +358,9 @@
                 <goals>
                   <goal>stop</goal>
                 </goals>
+                <configuration>
+                  <allContainers>true</allContainers>
+                </configuration>
               </execution>
             </executions>
           </plugin>

@@ -16,7 +16,11 @@
  */
 package com.github.lburgazzoli.etcd.v3;
 
+import com.github.lburgazzoli.etcd.v3.model.GetResponse;
+import com.github.lburgazzoli.etcd.v3.model.PutResponse;
 import io.netty.handler.ssl.SslContext;
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +31,7 @@ public class KVClientIT {
     private static final int ETCD_PORT = Integer.getInteger("test.etcd.port", 2379);
     private static final String ETCD_URI = String.format("%s:%d", ETCD_HOST, ETCD_PORT);
 
+    @Ignore
     @Test
     public void test() throws Exception {
         LOGGER.info("URL: {}", ETCD_URI);
@@ -41,7 +46,13 @@ public class KVClientIT {
             */
 
         Etcd etcd = Etcd.builder().sslContext(context).endpoints(ETCD_URI).build();
-        LOGGER.info("PUT: {}", etcd.put("key", "value").get());
-        LOGGER.info("RANGE: {}", etcd.get("key").get());
+        PutResponse put = etcd.put("key", "value").get();
+        GetResponse get = etcd.get("key").get();
+
+        Assert.assertFalse(put.hasPrevKv());
+        Assert.assertFalse(get.getMore());
+        Assert.assertEquals(1, get.getCount());
+        Assert.assertEquals("key", get.getKvs().get(0).getKey());
+        Assert.assertEquals("value", get.getKvs().get(0).getValue());
     }
 }

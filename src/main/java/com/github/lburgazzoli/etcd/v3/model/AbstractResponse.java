@@ -39,6 +39,10 @@ abstract class AbstractResponse<R> implements Response {
         return header;
     }
 
+    @Override
+    public String toString() {
+        return response.toString();
+    }
 
     // *****************************************
     //

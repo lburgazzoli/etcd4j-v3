@@ -27,11 +27,11 @@ public class KeyValue {
     }
 
     public CharSequence getKey() {
-        return kv.getKey().toString();
+        return new String(kv.getKey().toByteArray());
     }
 
     public CharSequence getValue() {
-        return kv.getValue().toString();
+        return new String(kv.getValue().toByteArray());
     }
 
     public long getCreateRevision() {
