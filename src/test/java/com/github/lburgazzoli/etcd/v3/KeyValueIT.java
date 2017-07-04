@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KVClientIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KVClientIT.class);
+public class KeyValueIT extends TestSupport {
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeyValueIT.class);
     private static final String ETCD_HOST = System.getProperty("test.etcd.host", "127.0.0.1");
     private static final int ETCD_PORT = Integer.getInteger("test.etcd.port", 2379);
     private static final String ETCD_URI = String.format("%s:%d", ETCD_HOST, ETCD_PORT);
@@ -40,10 +40,12 @@ public class KVClientIT {
 
         /*
         context = GrpcSslContexts.forClient()
-            .trustManager(new File("certs/ca.pem"))
-            .trustManager(InsecureTrustManagerFactory.INSTANCE)
+            .trustManager(new X509Certificate[] { TestSupport.loadX509Cert("ca.pem") })
+            .keyManager(
+                TestSupport.loadCert("client.pem"),
+                TestSupport.loadCert("client-key.pem"))
             .build();
-            */
+        */
 
         Etcd etcd = Etcd.builder().sslContext(context).endpoints(ETCD_URI).build();
         PutResponse put = etcd.put("key", "value").get();

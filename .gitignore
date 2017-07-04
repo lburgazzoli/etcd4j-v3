@@ -27,4 +27,5 @@ logs/
 target/
 out/
 certs/
+bin/
 
