@@ -24,7 +24,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.lburgazzoli</groupId>
   <artifactId>etcd4j-v3</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.2.0-SNAPSHOT</version>
   <name>etcd4j-v3</name>
   <packaging>bundle</packaging>
 
@@ -316,11 +316,6 @@
       <id>docker</id>
       <activation>
         <activeByDefault>false</activeByDefault>
-        <!--
-        <property>
-          <name>!docker.skip</name>
-        </property>
-        -->
       </activation>
       <build>
         <plugins>
@@ -355,9 +350,9 @@
                             <arg>-name</arg>
                             <arg>etcd4j</arg>
                             <arg>-advertise-client-urls</arg>
-                            <arg>http://127.0.0.1:2379,http://127.0.0.1:4001</arg>
+                            <arg>http://127.0.0.1:2379</arg>
                             <arg>-listen-client-urls</arg>
-                            <arg>http://0.0.0.0:2379,http://0.0.0.0:4001</arg>
+                            <arg>http://0.0.0.0:2379</arg>
                           </exec>
                         </cmd>
                       </run>
