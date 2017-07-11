@@ -297,12 +297,12 @@
     <profile>
       <id>docker</id>
       <activation>
-        <activeByDefault>false</activeByDefault>
         <!--
+        <activeByDefault>false</activeByDefault>
+        -->
         <property>
           <name>!docker.skip</name>
         </property>
-        -->
       </activation>
       <build>
         <plugins>
