@@ -1,0 +1,11 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/etcd4j-v3
+    docker:
+      - image: circleci/openjdk:8-jdk
+    steps:
+      - checkout
+      - run: ./mvnw install
+      - store_test_results:
+        path: target/failsafe-reports

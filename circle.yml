@@ -1,8 +1,0 @@
-machine:
-  java:
-    version: openjdk8
-  services:
-    - docker
-test:
-  override:
-    - ./mvnw install
