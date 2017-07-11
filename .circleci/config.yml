@@ -9,7 +9,7 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
-      - run: ./mvnw install
+      - run: ./mvnw -Pintegration install
       - store_test_results:
           path: target/failsafe-reports
       - store_test_results:
