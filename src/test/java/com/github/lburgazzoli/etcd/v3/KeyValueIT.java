@@ -18,7 +18,6 @@ package com.github.lburgazzoli.etcd.v3;
 
 import com.github.lburgazzoli.etcd.v3.model.GetResponse;
 import com.github.lburgazzoli.etcd.v3.model.PutResponse;
-import io.netty.handler.ssl.SslContext;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -34,18 +33,7 @@ public class KeyValueIT extends TestSupport {
     public void test() throws Exception {
         LOGGER.info("URL: {}", ETCD_URI);
 
-        SslContext context = null;
-
-        /*
-        context = GrpcSslContexts.forClient()
-            .trustManager(new X509Certificate[] { TestSupport.loadX509Cert("ca.pem") })
-            .keyManager(
-                TestSupport.loadCert("client.pem"),
-                TestSupport.loadCert("client-key.pem"))
-            .build();
-        */
-
-        Etcd etcd = Etcd.builder().sslContext(context).endpoints(ETCD_URI).build();
+        Etcd etcd = Etcd.builder().endpoints(ETCD_URI).build();
         PutResponse put = etcd.put("key", "value").get();
         GetResponse get = etcd.get("key").get();
 
