@@ -8,4 +8,4 @@ jobs:
       - checkout
       - run: ./mvnw install
       - store_test_results:
-        path: target/failsafe-reports
+          path: target/failsafe-reports
