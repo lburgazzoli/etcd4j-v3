@@ -1,13 +1,11 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/etcd4j-v3
     docker:
       - image: circleci/openjdk:8-jdk
       - image: quay.io/coreos/etcd:v3.2.2
         command: [etcd, -name, etcd4j, -advertise-client-urls, "http://127.0.0.1:2379", -listen-client-urls, "http://0.0.0.0:2379"]
     steps:
-      - setup_remote_docker
       - checkout
       - run: ./mvnw -Pintegration install
       - store_test_results:
