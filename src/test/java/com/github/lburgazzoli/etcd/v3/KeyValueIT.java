@@ -20,19 +20,10 @@ import com.github.lburgazzoli.etcd.v3.model.GetResponse;
 import com.github.lburgazzoli.etcd.v3.model.PutResponse;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class KeyValueIT extends TestSupport {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeyValueIT.class);
-    private static final String ETCD_HOST = System.getProperty("test.etcd.host", "127.0.0.1");
-    private static final int ETCD_PORT = Integer.getInteger("test.etcd.port", 2379);
-    private static final String ETCD_URI = String.format("%s:%d", ETCD_HOST, ETCD_PORT);
-
     @Test
     public void test() throws Exception {
-        LOGGER.info("URL: {}", ETCD_URI);
-
         Etcd etcd = Etcd.builder().endpoints(ETCD_URI).build();
         PutResponse put = etcd.put("key", "value").get();
         GetResponse get = etcd.get("key").get();

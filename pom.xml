@@ -343,7 +343,7 @@
                       <alias>etcd</alias>
                       <run>
                         <ports>
-                          <port>etcd.port:2379</port>
+                          <port>+etcd.ip:etcd.port:2379</port>
                         </ports>
                         <wait>
                           <log>embed: ready to serve client requests</log>
@@ -403,8 +403,8 @@
             </executions>
             <configuration>
               <systemProperties>
-                <test.etcd.port__>${etcd.port}</test.etcd.port__>
-                <test.etcd.host__>127.0.0.1</test.etcd.host__>
+                <test.etcd.port>${etcd.port}</test.etcd.port>
+                <test.etcd.ip>${etcd.ip}</test.etcd.ip>
               </systemProperties>
             </configuration>
           </plugin>
