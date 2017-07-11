@@ -5,6 +5,7 @@ jobs:
     docker:
       - image: circleci/openjdk:8-jdk
     steps:
+      - run: printenv
       - checkout
       - run: ./mvnw install
       - store_test_results:
