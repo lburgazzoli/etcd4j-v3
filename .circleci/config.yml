@@ -5,7 +5,8 @@ jobs:
     docker:
       - image: circleci/openjdk:8-jdk
     steps:
+      - setup_remote_docker
       - checkout
-      - run: ./mvnw install
+      - run: ./mvnw -Pdocker install
       - store_test_results:
           path: target/failsafe-reports
