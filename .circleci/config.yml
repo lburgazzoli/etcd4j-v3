@@ -7,6 +7,7 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
+      - run: printenv
       - run: ./mvnw -Pdocker install
       - store_test_results:
           path: target/failsafe-reports
