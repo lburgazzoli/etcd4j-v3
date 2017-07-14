@@ -431,7 +431,6 @@
       </build>
     </profile>
 
-    <!--
     <profile>
       <id>proto</id>
       <activation>
@@ -482,7 +481,6 @@
         </plugins>
       </build>
     </profile>
-    -->
 
   </profiles>
 
