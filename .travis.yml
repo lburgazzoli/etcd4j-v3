@@ -24,9 +24,9 @@ install: true
 jdk:
   - oraclejdk8
 
-script: "
-  ./mvnw -Dtest.etcd.endpoints="127.0.0.1:12379,127.0.0.1:22379,127.0.0.1:32379" -Pintegration install
-"
+script: 
+  - ./mvnw -Dtest.etcd.endpoints="127.0.0.1:12379,127.0.0.1:22379,127.0.0.1:32379" -Pintegration install
+
 env:
   global:
   - CI: true
