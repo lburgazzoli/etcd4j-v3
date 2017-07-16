@@ -22,12 +22,10 @@ import org.slf4j.LoggerFactory;
 
 public class TestSupport {
     protected static final Logger LOGGER = LoggerFactory.getLogger(TestSupport.class);
-    protected static final String ETCD_IP = System.getProperty("test.etcd.ip", "127.0.0.1");
-    protected static final int ETCD_PORT = Integer.getInteger("test.etcd.port", 2379);
-    protected static final String ETCD_URI = String.format("%s:%d", ETCD_IP, ETCD_PORT);
+    protected static final String[] ETCD_ENDPOINTS = System.getProperty("test.etcd.endpoints", "127.0.0.1:2379").split(",");
 
     @Before
     public void setUp() {
-        LOGGER.info("ip: {}, port: {}, url: {}", ETCD_IP, ETCD_PORT, ETCD_URI);
+        LOGGER.info("endpoints: {}", ETCD_ENDPOINTS);
     }
 }

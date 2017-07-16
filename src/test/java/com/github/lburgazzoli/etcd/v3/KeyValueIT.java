@@ -24,7 +24,7 @@ import org.junit.Test;
 public class KeyValueIT extends TestSupport {
     @Test
     public void test() throws Exception {
-        Etcd etcd = Etcd.builder().endpoints(ETCD_URI).build();
+        Etcd etcd = Etcd.builder().endpoints(ETCD_ENDPOINTS).build();
         PutResponse put = etcd.put("key", "value").get();
         GetResponse get = etcd.get("key").get();
 

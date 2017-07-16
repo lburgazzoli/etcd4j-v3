@@ -422,8 +422,7 @@
             </executions>
             <configuration>
               <systemProperties>
-                <test.etcd.port>${etcd.port}</test.etcd.port>
-                <test.etcd.ip>${etcd.ip}</test.etcd.ip>
+                <test.etcd.endpoints>${etcd.ip}:${etcd.port}:</test.etcd.endpoints>
               </systemProperties>
             </configuration>
           </plugin>

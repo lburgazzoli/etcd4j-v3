@@ -27,8 +27,10 @@ import com.github.lburgazzoli.etcd.v3.model.GetRequest;
 import com.github.lburgazzoli.etcd.v3.model.PutRequest;
 import com.github.lburgazzoli.etcd.v3.resolver.NameResolverFactory;
 import com.google.protobuf.ByteString;
+import io.grpc.LoadBalancer;
 import io.grpc.ManagedChannel;
 import io.grpc.NameResolver;
+import io.grpc.PickFirstBalancerFactory;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
@@ -44,6 +46,7 @@ public class Etcd implements AutoCloseable {
     private Set<String> endpoints;
     private SslContext sslContext;
     private NameResolver.Factory nameResolverFactory;
+    private LoadBalancer.Factory loadBalancerFactory;
 
     private ManagedChannel managedChannel;
 
@@ -99,9 +102,15 @@ public class Etcd implements AutoCloseable {
             NettyChannelBuilder builder = NettyChannelBuilder.forTarget(this.resolver)
                 .channelType(NioSocketChannel.class);
 
-            ofNullable(nameResolverFactory).ifPresent(builder::nameResolverFactory);
-            ofNullable(sslContext).ifPresent(builder::sslContext);
-
+            if (nameResolverFactory != null) {
+                builder.nameResolverFactory(nameResolverFactory);
+            }
+            if (loadBalancerFactory != null) {
+                builder.loadBalancerFactory(loadBalancerFactory);
+            }
+            if (sslContext != null) {
+                builder.sslContext(sslContext);
+            }
             if (sslContext == null) {
                 builder.usePlaintext(true);
             }
@@ -124,6 +133,7 @@ public class Etcd implements AutoCloseable {
         private String resolver;
         private SslContext sslContext;
         private NameResolver.Factory nameResolverFactory;
+        private LoadBalancer.Factory loadBalancerFactory;
 
         private Builder() {
         }
@@ -179,8 +189,17 @@ public class Etcd implements AutoCloseable {
             return nameResolverFactory;
         }
 
-        public Builder setNameResolverFactory(NameResolver.Factory nameResolverFactory) {
+        public Builder nameResolverFactory(NameResolver.Factory nameResolverFactory) {
             this.nameResolverFactory = nameResolverFactory;
+            return this;
+        }
+
+        public LoadBalancer.Factory loadBalancerFactory() {
+            return loadBalancerFactory;
+        }
+
+        public Builder loadBalancerFactory(LoadBalancer.Factory loadBalancerFactory) {
+            this.loadBalancerFactory = loadBalancerFactory;
             return this;
         }
 
@@ -195,6 +214,7 @@ public class Etcd implements AutoCloseable {
             etcd.endpoints = ofNullable(endpoints).orElseGet(Collections::emptySet);
             etcd.sslContext = ofNullable(sslContext).orElse(null);
             etcd.nameResolverFactory = ofNullable(nameResolverFactory).orElseGet(() -> new NameResolverFactory(etcd.endpoints));
+            etcd.loadBalancerFactory = ofNullable(loadBalancerFactory).orElseGet(PickFirstBalancerFactory::getInstance);
 
             return etcd;
         }
