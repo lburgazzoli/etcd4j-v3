@@ -1,5 +1,6 @@
 = etcd4j-v3
 
+image:https://travis-ci.org/lburgazzoli/etcd4j-v3.svg[title="Build Status", link="https://travis-ci.org/lburgazzoli/etcd4j-v3"]
 
 IMPORTANT: this repository is for testing purpose only, not a supported etcd v3 client
 
