@@ -25,3 +25,4 @@ script: "
 env:
   global:
   - CI: true
+
