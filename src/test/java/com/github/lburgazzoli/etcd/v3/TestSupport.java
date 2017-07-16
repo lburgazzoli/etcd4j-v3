@@ -16,6 +16,8 @@
  */
 package com.github.lburgazzoli.etcd.v3;
 
+import java.util.Arrays;
+
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +28,6 @@ public class TestSupport {
 
     @Before
     public void setUp() {
-        LOGGER.info("endpoints: {}", ETCD_ENDPOINTS);
+        LOGGER.info("endpoints: {}", Arrays.toString(ETCD_ENDPOINTS));
     }
 }
