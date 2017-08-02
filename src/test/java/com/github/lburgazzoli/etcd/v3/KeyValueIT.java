@@ -16,17 +16,44 @@
  */
 package com.github.lburgazzoli.etcd.v3;
 
+import java.util.concurrent.TimeUnit;
+
 import com.github.lburgazzoli.etcd.v3.model.GetResponse;
 import com.github.lburgazzoli.etcd.v3.model.PutResponse;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class KeyValueIT extends TestSupport {
     @Test
     public void test() throws Exception {
         Etcd etcd = Etcd.builder().endpoints(ETCD_ENDPOINTS).build();
+
         PutResponse put = etcd.put("key", "value").get();
         GetResponse get = etcd.get("key").get();
+
+        Assert.assertFalse(put.hasPrevKv());
+        Assert.assertFalse(get.getMore());
+        Assert.assertEquals(1, get.getCount());
+        Assert.assertEquals("key", get.getKvs().get(0).getKey());
+        Assert.assertEquals("value", get.getKvs().get(0).getValue());
+    }
+
+    @Ignore
+    @Test
+    public void testWithAuth() throws Exception {
+        Etcd etcd = Etcd.builder().endpoints(ETCD_ENDPOINTS).user("test").password("test").build();
+
+        PutResponse put = etcd.put("key", "value").get();
+        GetResponse get = etcd.get("key").get();
+
+        for (int i = 0; i < 6; i++) {
+            LOGGER.info("Wait ({}) ...", i);
+            Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+        }
+
+        LOGGER.info("Do get ...");
+        get = etcd.get("key").get();
 
         Assert.assertFalse(put.hasPrevKv());
         Assert.assertFalse(get.getMore());
