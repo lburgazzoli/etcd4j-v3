@@ -23,6 +23,7 @@
   <version>0.0.7-SNAPSHOT</version>
   <name>etcd4j-v3</name>
   <packaging>bundle</packaging>
+  <description>etcd4j-v3</description>
 
   <licenses>
     <license>
