@@ -25,7 +25,8 @@ jdk:
   - oraclejdk8
 
 script: 
-  - ./mvnw -Dtest.etcd.endpoints="127.0.0.1:12379,127.0.0.1:22379,127.0.0.1:32379" -Pintegration install deploy
+  - cp 
+  - ./mvnw -s .travis-settings.xml -Dtest.etcd.endpoints="127.0.0.1:12379,127.0.0.1:22379,127.0.0.1:32379" -Pintegration install deploy
 
 env:
   global:
