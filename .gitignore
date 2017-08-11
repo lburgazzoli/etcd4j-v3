@@ -19,6 +19,9 @@ atlassian-ide-plugin.xml
 .idea/
 .gradle/
 
+pom.xml.releaseBackup
+release.properties
+
 classes/
 build/
 build-gradle/
