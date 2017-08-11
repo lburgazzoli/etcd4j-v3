@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.lburgazzoli</groupId>
   <artifactId>etcd4j-v3</artifactId>
-  <version>0.0.7</version>
+  <version>0.0.8-SNAPSHOT</version>
   <name>etcd4j-v3</name>
   <packaging>bundle</packaging>
   <description>etcd4j-v3</description>
@@ -42,7 +42,7 @@
     <connection>scm:git:git@github.com:lburgazzoli/etcd4j-v3.git</connection>
     <developerConnection>scm:git:git@github.com:lburgazzoli/etcd4j-v3.git</developerConnection>
     <url>https://github.com/lburgazzoli/etcd4j-v3.git</url>
-    <tag>etcd4j-v3-0.0.7</tag>
+    <tag>etcd4j-v3-0.0.2.SNAPSHOT</tag>
   </scm>
 
   <properties>
