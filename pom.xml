@@ -365,7 +365,7 @@
                   <showLogs>true</showLogs>
                   <images>
                     <image>
-                      <name>quay.io/coreos/etcd:v${etcd.version.major}.${etcd.version.minor}</name>
+                      <name>gcr.io/etcd-development:v${etcd.version.major}.${etcd.version.minor}</name>
                       <alias>etcd</alias>
                       <run>
                         <ports>
