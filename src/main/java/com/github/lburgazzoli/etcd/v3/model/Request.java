@@ -16,18 +16,18 @@
  */
 package com.github.lburgazzoli.etcd.v3.model;
 
-import java.util.concurrent.CompletableFuture;
+import io.reactivex.Single;
 
 public interface Request<T extends Response> {
     /**
      * TODO: document
      */
-    CompletableFuture<T> send();
+    Single<T> send();
 
     /**
      * TODO: document
      */
     default T get() {
-        return send().join();
+        return send().blockingGet();
     }
 }

@@ -45,7 +45,7 @@ public class KeyValueIT extends TestSupport {
         Etcd etcd = Etcd.builder().endpoints(ETCD_ENDPOINTS).user("test").password("test").build();
 
         PutResponse put = etcd.put("key", "value").get();
-        GetResponse get = etcd.get("key").get();
+        GetResponse get;
 
         for (int i = 0; i < 6; i++) {
             LOGGER.info("Wait ({}) ...", i);

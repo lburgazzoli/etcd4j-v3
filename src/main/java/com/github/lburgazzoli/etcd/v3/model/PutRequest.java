@@ -16,13 +16,11 @@
  */
 package com.github.lburgazzoli.etcd.v3.model;
 
-import java.util.concurrent.CompletableFuture;
-
 import com.github.lburgazzoli.etcd.v3.api.KVGrpc;
+import com.github.lburgazzoli.etcd.v3.util.Rx;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
-
-import static net.javacrumbs.futureconverter.java8guava.FutureConverter.toCompletableFuture;
+import io.reactivex.Single;
 
 public class PutRequest implements Request<PutResponse> {
     private final ManagedChannel channel;
@@ -38,13 +36,14 @@ public class PutRequest implements Request<PutResponse> {
     }
 
     @Override
-    public CompletableFuture<PutResponse> send() {
+    public Single<PutResponse> send() {
         com.github.lburgazzoli.etcd.v3.api.PutRequest request =
             com.github.lburgazzoli.etcd.v3.api.PutRequest.newBuilder()
                 .setKey(key)
                 .setValue(value)
                 .build();
 
-        return toCompletableFuture(stub.put(request)).thenApply(PutResponse::new);
+
+        return Rx.toSingle(() -> stub.put(request)).map(PutResponse::new);
     }
 }

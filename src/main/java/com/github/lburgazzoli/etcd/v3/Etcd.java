@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static java.util.Optional.ofNullable;
+
 import com.github.lburgazzoli.etcd.v3.api.AuthGrpc;
 import com.github.lburgazzoli.etcd.v3.api.AuthenticateRequest;
 import com.github.lburgazzoli.etcd.v3.model.GetRequest;
@@ -44,13 +46,12 @@ import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.NameResolver;
 import io.grpc.PickFirstBalancerFactory;
+import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.util.Optional.ofNullable;
 
 public class Etcd implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Etcd.class);
@@ -132,7 +133,7 @@ public class Etcd implements AutoCloseable {
                 builder.sslContext(sslContext);
             }
             if (sslContext == null) {
-                builder.usePlaintext(true);
+                builder.negotiationType(NegotiationType.PLAINTEXT);
             }
 
             managedChannel = builder.build();
