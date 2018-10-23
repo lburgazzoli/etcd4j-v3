@@ -14,32 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.etcd.v3.model;
+package com.github.lburgazzoli.etcd.v3;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import com.github.lburgazzoli.etcd.v3.api.KVGrpc;
-import com.github.lburgazzoli.etcd.v3.util.Rx;
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
-import io.reactivex.Single;
 
-public class GetRequest implements Request<GetResponse> {
-    private final ManagedChannel channel;
-    private final KVGrpc.KVFutureStub stub;
+class PutRequest extends AbstractRequest<KVGrpc.KVVertxStub, PutResponse> {
     private final ByteString key;
+    private final ByteString value;
 
-    public GetRequest(ManagedChannel channel, ByteString key) {
-        this.channel = channel;
-        this.stub = KVGrpc.newFutureStub(this.channel);
+    PutRequest(KVGrpc.KVVertxStub stub, Executor executor, ByteString key, ByteString value) {
+       super(stub, executor);
+
         this.key = key;
+        this.value = value;
     }
 
     @Override
-    public Single<GetResponse> send() {
-        com.github.lburgazzoli.etcd.v3.api.RangeRequest request =
-            com.github.lburgazzoli.etcd.v3.api.RangeRequest.newBuilder()
+    protected void doSend(CompletableFuture<PutResponse> future) {
+        com.github.lburgazzoli.etcd.v3.api.PutRequest request =
+            com.github.lburgazzoli.etcd.v3.api.PutRequest.newBuilder()
                 .setKey(key)
+                .setValue(value)
                 .build();
 
-        return Rx.toSingle(() -> stub.range(request)).map(GetResponse::new);
+        stub().put(request, h -> future.complete(new PutResponse(h.result())));
     }
 }

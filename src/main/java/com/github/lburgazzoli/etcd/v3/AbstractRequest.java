@@ -14,39 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.etcd.v3.model;
+package com.github.lburgazzoli.etcd.v3;
 
-/**
- * Etcd key value pair.
- */
-public class KeyValue {
-    private com.github.lburgazzoli.etcd.v3.api.KeyValue kv;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.function.Function;
 
-    public KeyValue(com.github.lburgazzoli.etcd.v3.api.KeyValue kv) {
-        this.kv = kv;
+import io.grpc.stub.AbstractStub;
+
+abstract class AbstractRequest<S extends AbstractStub<S>, R extends Response> implements Request<R>  {
+    private final S stub;
+    private Executor executor;
+
+    protected AbstractRequest(S stub, Executor executor) {
+        this.stub = stub;
+        this.executor = executor;
     }
 
-    public CharSequence getKey() {
-        return new String(kv.getKey().toByteArray());
+    @Override
+    public CompletableFuture<R> send() {
+        CompletableFuture<R> future = new CompletableFuture<>();
+
+        doSend(future);
+
+        return future.thenApplyAsync(Function.identity(), executor);
     }
 
-    public CharSequence getValue() {
-        return new String(kv.getValue().toByteArray());
+    protected S stub() {
+        return stub;
     }
 
-    public long getCreateRevision() {
-        return kv.getCreateRevision();
-    }
-
-    public long getModRevision() {
-        return kv.getModRevision();
-    }
-
-    public long getVersion() {
-        return kv.getVersion();
-    }
-
-    public long getLease() {
-        return kv.getLease();
-    }
+    protected abstract void doSend(CompletableFuture<R> future);
 }

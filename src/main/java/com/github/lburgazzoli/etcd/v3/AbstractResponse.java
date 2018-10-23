@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.etcd.v3.model;
+package com.github.lburgazzoli.etcd.v3;
 
 import com.github.lburgazzoli.etcd.v3.api.ResponseHeader;
 
-abstract class AbstractResponse<R> implements Response {
+class AbstractResponse<R> implements Response {
     private final R response;
     private final ResponseHeader responseHeader;
     private final Header header;

@@ -16,8 +16,6 @@
  */
 package com.github.lburgazzoli.etcd.v3;
 
-import com.github.lburgazzoli.etcd.v3.model.GetResponse;
-import com.github.lburgazzoli.etcd.v3.model.PutResponse;
 import com.github.lburgazzoli.etcd.v3.support.EtcdClusterResource;
 import org.junit.Assert;
 import org.junit.ClassRule;

@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -29,8 +31,7 @@ import static java.util.Optional.ofNullable;
 
 import com.github.lburgazzoli.etcd.v3.api.AuthGrpc;
 import com.github.lburgazzoli.etcd.v3.api.AuthenticateRequest;
-import com.github.lburgazzoli.etcd.v3.model.GetRequest;
-import com.github.lburgazzoli.etcd.v3.model.PutRequest;
+import com.github.lburgazzoli.etcd.v3.api.KVGrpc;
 import com.github.lburgazzoli.etcd.v3.resolver.NameResolverFactory;
 import com.google.common.base.Strings;
 import com.google.protobuf.ByteString;
@@ -46,10 +47,9 @@ import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.NameResolver;
 import io.grpc.PickFirstBalancerFactory;
-import io.grpc.netty.NegotiationType;
-import io.grpc.netty.NettyChannelBuilder;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
+import io.vertx.core.Vertx;
+import io.vertx.grpc.VertxChannelBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,11 +69,14 @@ public class Etcd implements AutoCloseable {
     private TimeUnit tokenExpirationTimeUnit;
     private long tokenExpirationJitter;
     private TimeUnit tokenExpirationJitterUnit;
+    private Vertx vertx;
+    private ExecutorService executor;
 
     /**
      * Private ctor
      */
     private Etcd() {
+        this.executor = Executors.newSingleThreadExecutor();
     }
 
     /**
@@ -81,8 +84,17 @@ public class Etcd implements AutoCloseable {
      */
     @Override
     public void close() throws Exception {
-        if (managedChannel == null) {
+        if (managedChannel != null) {
             managedChannel.shutdown();
+            managedChannel= null;
+        }
+        if (vertx != null) {
+            vertx.close();
+            vertx= null;
+        }
+        if (executor != null) {
+            executor.shutdownNow();
+            executor = null;
         }
     }
 
@@ -92,7 +104,8 @@ public class Etcd implements AutoCloseable {
 
     public PutRequest put(String key, String value) {
         return new PutRequest(
-            managedChannel(),
+            KVGrpc.newVertxStub(managedChannel()),
+            executor,
             ByteString.copyFrom(key.getBytes()),
             ByteString.copyFrom(value.getBytes())
         );
@@ -100,7 +113,8 @@ public class Etcd implements AutoCloseable {
 
     public GetRequest get(String key) {
         return new GetRequest(
-            managedChannel(),
+            KVGrpc.newVertxStub(managedChannel()),
+            executor,
             ByteString.copyFrom(key.getBytes())
         );
     }
@@ -119,21 +133,27 @@ public class Etcd implements AutoCloseable {
 
     private synchronized ManagedChannel managedChannel() {
         if (managedChannel == null) {
-            NettyChannelBuilder builder = NettyChannelBuilder.forTarget(this.resolver)
-                .channelType(NioSocketChannel.class)
-                .intercept(new Interceptor());
+            executor = Executors.newCachedThreadPool();
+            vertx = Vertx.vertx();
+
+            VertxChannelBuilder builder = VertxChannelBuilder.forTarget(vertx, this.resolver);
+
+            builder.usePlaintext(true);
+            builder.intercept(new Interceptor());
+
+            if (sslContext != null) {
+                // TODO
+                builder.useSsl(options -> {
+                    options.setSsl(true);
+                    options.setUseAlpn(true);
+                });
+            }
 
             if (nameResolverFactory != null) {
                 builder.nameResolverFactory(nameResolverFactory);
             }
             if (loadBalancerFactory != null) {
                 builder.loadBalancerFactory(loadBalancerFactory);
-            }
-            if (sslContext != null) {
-                builder.sslContext(sslContext);
-            }
-            if (sslContext == null) {
-                builder.negotiationType(NegotiationType.PLAINTEXT);
             }
 
             managedChannel = builder.build();

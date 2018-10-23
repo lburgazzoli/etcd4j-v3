@@ -14,18 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.etcd.v3.model;
+package com.github.lburgazzoli.etcd.v3;
 
-public interface Response {
-    Header getHeader();
+import java.util.List;
+import java.util.stream.Collectors;
 
-    interface Header {
-        long getClusterId();
+public class GetResponse extends AbstractResponse<com.github.lburgazzoli.etcd.v3.api.RangeResponse> {
 
-        long getMemberId();
+    public GetResponse(com.github.lburgazzoli.etcd.v3.api.RangeResponse response) {
+        super(response, response.getHeader());
+    }
 
-        long getRevision();
+    public List<KeyValue> getKvs() {
+        return response().getKvsList().stream()
+            .map(KeyValue::new)
+            .collect(Collectors.toList());
+    }
 
-        long getRaftTerm();
+    public boolean getMore() {
+        return response().getMore();
+    }
+
+    public long getCount() {
+        return response().getCount();
     }
 }

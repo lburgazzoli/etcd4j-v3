@@ -14,28 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.etcd.v3.model;
+package com.github.lburgazzoli.etcd.v3;
 
-import java.util.List;
-import java.util.stream.Collectors;
+public final class PutResponse extends AbstractResponse<com.github.lburgazzoli.etcd.v3.api.PutResponse> {
 
-public class GetResponse extends AbstractResponse<com.github.lburgazzoli.etcd.v3.api.RangeResponse> {
-
-    public GetResponse(com.github.lburgazzoli.etcd.v3.api.RangeResponse response) {
+    public PutResponse(com.github.lburgazzoli.etcd.v3.api.PutResponse response) {
         super(response, response.getHeader());
     }
 
-    public List<KeyValue> getKvs() {
-        return response().getKvsList().stream()
-            .map(KeyValue::new)
-            .collect(Collectors.toList());
+    // ***********************************************
+    // Properties
+    // ***********************************************
+
+    public KeyValue getPrevKv() {
+        return new KeyValue(response().getPrevKv());
     }
 
-    public boolean getMore() {
-        return response().getMore();
-    }
-
-    public long getCount() {
-        return response().getCount();
+    public boolean hasPrevKv() {
+        return response().hasPrevKv();
     }
 }

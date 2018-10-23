@@ -99,15 +99,26 @@
     <jcommander.version>1.72</jcommander.version>
     <!-- should be in sync with protobuf grpc dependencies -->
     <protobuf.version>3.5.1</protobuf.version>
-    <rxjava2.version>2.2.2</rxjava2.version>
     <testcontainers.version>1.9.1</testcontainers.version>
     <vertx.version>3.5.4</vertx.version>
-    <vertx-grpc.version>1.9.0</vertx-grpc.version>
+    <vertx-grpc.version>1.15.0</vertx-grpc.version>
 
     <!-- test dependencies -->
     <junit.version>4.12</junit.version>
     <netty-tcnative.version>2.0.18.Final</netty-tcnative.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.vertx</groupId>
+        <artifactId>vertx-dependencies</artifactId>
+        <version>${vertx.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -137,11 +148,24 @@
     </dependency>
 
     <dependency>
-      <groupId>io.reactivex.rxjava2</groupId>
-      <artifactId>rxjava</artifactId>
-      <version>${rxjava2.version}</version>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-core</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-codegen</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-docgen</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-grpc</artifactId>
+      <optional>true</optional>
+    </dependency>
 
     <!-- test -->
     <dependency>
@@ -212,7 +236,7 @@
           </protocArtifact>
           <pluginId>grpc-java</pluginId>
           <pluginArtifact>
-            io.vertx:protoc-gen-grpc-java:${vertx-grpc.version}}:exe:${os.detected.classifier}
+            io.vertx:protoc-gen-grpc-java:${vertx-grpc.version}:exe:${os.detected.classifier}
           </pluginArtifact>
         </configuration>
         <executions>

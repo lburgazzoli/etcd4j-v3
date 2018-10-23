@@ -14,20 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.etcd.v3.model;
+package com.github.lburgazzoli.etcd.v3;
 
-import io.reactivex.Single;
+public interface Response {
+    Header getHeader();
 
-public interface Request<T extends Response> {
-    /**
-     * TODO: document
-     */
-    Single<T> send();
+    interface Header {
+        long getClusterId();
 
-    /**
-     * TODO: document
-     */
-    default T get() {
-        return send().blockingGet();
+        long getMemberId();
+
+        long getRevision();
+
+        long getRaftTerm();
     }
 }
