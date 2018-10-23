@@ -4,12 +4,12 @@ services:
   - docker
 
 before_install:
-  - docker pull gcr.io/etcd-development:v3.3
+  - docker pull gcr.io/etcd-development/etcd:v3.3
   - docker network create etcd
-  - docker run --detach --name etcd1 --network etcd --publish 12379:2379 gcr.io/etcd-development:v3.3 etcd -name etcd1 -advertise-client-urls "http://127.0.0.1:2379" -listen-client-urls "http://0.0.0.0:2379" -initial-advertise-peer-urls http://etcd1:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 -initial-cluster-state new
-  - docker run --detach --name etcd2 --network etcd --publish 22379:2379 gcr.io/etcd-development:v3.3 etcd -name etcd2 -advertise-client-urls "http://127.0.0.1:2379" -listen-client-urls "http://0.0.0.0:2379" -initial-advertise-peer-urls http://etcd2:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 -initial-cluster-state new
-  - docker run --detach --name etcd3 --network etcd --publish 32379:2379 gcr.io/etcd-development:v3.3 etcd -name etcd3 -advertise-client-urls "http://127.0.0.1:2379" -listen-client-urls "http://0.0.0.0:2379" -initial-advertise-peer-urls http://etcd3:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 -initial-cluster-state new
-  - docker run --detach --name etcd-proxy --network etcd --publish 2379:2379 gcr.io/etcd-development:v3.3 etcd grpc-proxy start --endpoints=etcd1:2379,etcd2:2379,etcd3:2379 --listen-addr=0.0.0.0:2379
+  - docker run --detach --name etcd1 --network etcd --publish 12379:2379 gcr.io/etcd-development/etcd:v3.3 etcd -name etcd1 -advertise-client-urls "http://127.0.0.1:2379" -listen-client-urls "http://0.0.0.0:2379" -initial-advertise-peer-urls http://etcd1:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 -initial-cluster-state new
+  - docker run --detach --name etcd2 --network etcd --publish 22379:2379 gcr.io/etcd-development/etcd:v3.3 etcd -name etcd2 -advertise-client-urls "http://127.0.0.1:2379" -listen-client-urls "http://0.0.0.0:2379" -initial-advertise-peer-urls http://etcd2:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 -initial-cluster-state new
+  - docker run --detach --name etcd3 --network etcd --publish 32379:2379 gcr.io/etcd-development/etcd:v3.3 etcd -name etcd3 -advertise-client-urls "http://127.0.0.1:2379" -listen-client-urls "http://0.0.0.0:2379" -initial-advertise-peer-urls http://etcd3:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 -initial-cluster-state new
+  - docker run --detach --name etcd-proxy --network etcd --publish 2379:2379 gcr.io/etcd-development/etcd:v3.3 etcd grpc-proxy start --endpoints=etcd1:2379,etcd2:2379,etcd3:2379 --listen-addr=0.0.0.0:2379
   - docker ps -a
 
 addons:
