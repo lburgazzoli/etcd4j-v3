@@ -1,33 +1,30 @@
 sudo: required
+language: java
+install: true
 
 services:
   - docker
 
 before_install:
-  - docker pull gcr.io/etcd-development:v3.3
+  - curl -s "https://get.sdkman.io" | bash
+  - source "$HOME/.sdkman/bin/sdkman-init.sh"
+  - sdk version
+  - mkdir -p "$HOME/.sdkman/etc"
+  - echo "sdkman_auto_answer=true" > "$HOME/.sdkman/etc/config"
+  - echo "sdkman_auto_selfupdate=true" >> "$HOME/.sdkman/etc/config"
+  - sdk install java 8.0.181-zulu
+  - docker pull gcr.io/etcd-development/etcd:v3.3
   - docker network create etcd
-  - docker run --detach --name etcd1 --network etcd --publish 12379:2379 gcr.io/etcd-development:v3.3 etcd -name etcd1 -advertise-client-urls "http://127.0.0.1:2379" -listen-client-urls "http://0.0.0.0:2379" -initial-advertise-peer-urls http://etcd1:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 -initial-cluster-state new
-  - docker run --detach --name etcd2 --network etcd --publish 22379:2379 gcr.io/etcd-development:v3.3 etcd -name etcd2 -advertise-client-urls "http://127.0.0.1:2379" -listen-client-urls "http://0.0.0.0:2379" -initial-advertise-peer-urls http://etcd2:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 -initial-cluster-state new
-  - docker run --detach --name etcd3 --network etcd --publish 32379:2379 gcr.io/etcd-development:v3.3 etcd -name etcd3 -advertise-client-urls "http://127.0.0.1:2379" -listen-client-urls "http://0.0.0.0:2379" -initial-advertise-peer-urls http://etcd3:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 -initial-cluster-state new
-  - docker run --detach --name etcd-proxy --network etcd --publish 2379:2379 gcr.io/etcd-development:v3.3 etcd grpc-proxy start --endpoints=etcd1:2379,etcd2:2379,etcd3:2379 --listen-addr=0.0.0.0:2379
+  - docker run --detach --name etcd1 --network etcd --publish 12379:2379 gcr.io/etcd-development/etcd:v3.3 etcd -name etcd1 -advertise-client-urls "http://127.0.0.1:2379" -listen-client-urls "http://0.0.0.0:2379" -initial-advertise-peer-urls http://etcd1:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 -initial-cluster-state new
+  - docker run --detach --name etcd2 --network etcd --publish 22379:2379 gcr.io/etcd-development/etcd:v3.3 etcd -name etcd2 -advertise-client-urls "http://127.0.0.1:2379" -listen-client-urls "http://0.0.0.0:2379" -initial-advertise-peer-urls http://etcd2:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 -initial-cluster-state new
+  - docker run --detach --name etcd3 --network etcd --publish 32379:2379 gcr.io/etcd-development/etcd:v3.3 etcd -name etcd3 -advertise-client-urls "http://127.0.0.1:2379" -listen-client-urls "http://0.0.0.0:2379" -initial-advertise-peer-urls http://etcd3:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 -initial-cluster-state new
+  - docker run --detach --name etcd-proxy --network etcd --publish 2379:2379 gcr.io/etcd-development/etcd:v3.3 etcd grpc-proxy start --endpoints=etcd1:2379,etcd2:2379,etcd3:2379 --listen-addr=0.0.0.0:2379
   - docker ps -a
 
-addons:
-  apt:
-    packages:
-    - oracle-java8-installer
-
-
-language: java
-install: true
-
-jdk:
-  - oraclejdk8
-
 script:
+  - sdk use java 8.0.181-zulu
   - ./mvnw -s .travis-settings.xml -Dtest.etcd.endpoints="127.0.0.1:12379,127.0.0.1:22379,127.0.0.1:32379" -Pintegration install deploy
 
 env:
   global:
   - CI: true
-
