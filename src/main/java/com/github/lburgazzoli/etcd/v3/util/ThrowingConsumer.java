@@ -17,6 +17,6 @@
 package com.github.lburgazzoli.etcd.v3.util;
 
 @FunctionalInterface
-public interface ThrowingConsumer<T, E extends Exception> {
+public interface ThrowingConsumer<T, E extends Throwable> {
     void accept(T t) throws E;
 }
