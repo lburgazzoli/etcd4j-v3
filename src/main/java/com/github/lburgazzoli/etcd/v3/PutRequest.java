@@ -17,7 +17,6 @@
 package com.github.lburgazzoli.etcd.v3;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 import com.github.lburgazzoli.etcd.v3.api.KVGrpc;
 import com.google.protobuf.ByteString;
@@ -26,21 +25,23 @@ class PutRequest extends AbstractRequest<KVGrpc.KVVertxStub, PutResponse> {
     private final ByteString key;
     private final ByteString value;
 
-    PutRequest(KVGrpc.KVVertxStub stub, Executor executor, ByteString key, ByteString value) {
-       super(stub, executor);
+    PutRequest(Stub<KVGrpc.KVVertxStub> stub, ByteString key, ByteString value) {
+       super(stub);
 
         this.key = key;
         this.value = value;
     }
 
     @Override
-    protected void doSend(CompletableFuture<PutResponse> future) {
+    protected void execute(KVGrpc.KVVertxStub stub, CompletableFuture<PutResponse> future) {
         com.github.lburgazzoli.etcd.v3.api.PutRequest request =
             com.github.lburgazzoli.etcd.v3.api.PutRequest.newBuilder()
                 .setKey(key)
                 .setValue(value)
                 .build();
 
-        stub().put(request, h -> future.complete(new PutResponse(h.result())));
+        stub.put(request, h -> {
+            future.complete(new PutResponse(h.result()));
+        });
     }
 }

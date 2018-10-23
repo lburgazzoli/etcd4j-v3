@@ -17,28 +17,29 @@
 package com.github.lburgazzoli.etcd.v3;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.function.Function;
 
-import com.github.lburgazzoli.etcd.v3.api.KVGrpc;
-import com.google.protobuf.ByteString;
+import com.github.lburgazzoli.etcd.v3.util.ThrowingBiConsumer;
 
-class GetRequest extends AbstractRequest<KVGrpc.KVVertxStub, GetResponse> {
-    private final ByteString key;
+public class Stub<S extends io.grpc.stub.AbstractStub<S>> {
+    private final Executor executor;
+    private final S stub;
 
-    GetRequest(Stub<KVGrpc.KVVertxStub> stub, ByteString key) {
-        super(stub);
-
-        this.key = key;
+    public Stub(S stub, Executor executor) {
+        this.stub = stub;
+        this.executor = executor;
     }
 
-    @Override
-    protected void execute(KVGrpc.KVVertxStub stub, CompletableFuture<GetResponse> future) {
-        com.github.lburgazzoli.etcd.v3.api.RangeRequest request =
-            com.github.lburgazzoli.etcd.v3.api.RangeRequest.newBuilder()
-                .setKey(key)
-                .build();
+    public <R, E extends Exception> CompletableFuture<R> execute(ThrowingBiConsumer<S, CompletableFuture<R>, E> consumer) {
+        CompletableFuture<R> future = new CompletableFuture<>();
 
-        stub.range(request, h -> {
-            future.complete(new GetResponse(h.result()));
-        });
+        try {
+            consumer.accept(stub, future);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return future.thenApplyAsync(Function.identity(), executor);
     }
 }

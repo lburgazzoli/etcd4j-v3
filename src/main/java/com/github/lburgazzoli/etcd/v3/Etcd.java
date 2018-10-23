@@ -16,6 +16,7 @@
  */
 package com.github.lburgazzoli.etcd.v3;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,6 +48,7 @@ import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.NameResolver;
 import io.grpc.PickFirstBalancerFactory;
+import io.grpc.stub.AbstractStub;
 import io.netty.handler.ssl.SslContext;
 import io.vertx.core.Vertx;
 import io.vertx.grpc.VertxChannelBuilder;
@@ -71,12 +73,31 @@ public class Etcd implements AutoCloseable {
     private TimeUnit tokenExpirationJitterUnit;
     private Vertx vertx;
     private ExecutorService executor;
+    private ClassValue<Stub<?>> cache;
 
     /**
      * Private ctor
      */
     private Etcd() {
         this.executor = Executors.newSingleThreadExecutor();
+        this.cache = new ClassValue<Stub<?>>() {
+            @Override
+            protected Stub<?> computeValue(Class<?> type) {
+                if (!AbstractStub.class.isAssignableFrom(type)) {
+                    throw new IllegalArgumentException();
+                }
+
+                try {
+                    final Channel channel = managedChannel();
+                    final Constructor<?> ctor = type.getConstructor(Channel.class);
+                    final AbstractStub stub = (AbstractStub)ctor.newInstance(channel);
+
+                    return new Stub(stub, executor);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
     }
 
     /**
@@ -104,8 +125,7 @@ public class Etcd implements AutoCloseable {
 
     public PutRequest put(String key, String value) {
         return new PutRequest(
-            KVGrpc.newVertxStub(managedChannel()),
-            executor,
+            (Stub<KVGrpc.KVVertxStub>)cache.get(KVGrpc.KVVertxStub.class),
             ByteString.copyFrom(key.getBytes()),
             ByteString.copyFrom(value.getBytes())
         );
@@ -113,8 +133,7 @@ public class Etcd implements AutoCloseable {
 
     public GetRequest get(String key) {
         return new GetRequest(
-            KVGrpc.newVertxStub(managedChannel()),
-            executor,
+            (Stub<KVGrpc.KVVertxStub>)cache.get(KVGrpc.KVVertxStub.class),
             ByteString.copyFrom(key.getBytes())
         );
     }

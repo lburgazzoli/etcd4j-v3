@@ -14,24 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.etcd.v3;
+package com.github.lburgazzoli.etcd.v3.util;
 
-import java.util.concurrent.CompletableFuture;
-
-import io.grpc.stub.AbstractStub;
-
-
-abstract class AbstractRequest<S extends AbstractStub<S>, R extends Response> implements Request<R>  {
-    private final Stub<S> stub;
-
-    protected AbstractRequest(Stub<S> stub) {
-        this.stub = stub;
-    }
-
-    @Override
-    public CompletableFuture<R> send() {
-        return stub.execute(this::execute);
-    }
-
-    protected abstract void execute(S stub, CompletableFuture<R> future);
+@FunctionalInterface
+public interface ThrowingBiConsumer<T1, T2, E extends Exception> {
+    void accept(T1 t1, T2 t2) throws E;
 }
