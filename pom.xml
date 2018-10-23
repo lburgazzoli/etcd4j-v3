@@ -84,7 +84,7 @@
     <maven-surefire-plugin.version>2.20.1</maven-surefire-plugin.version>
     <directory-maven-plugin.version>0.2</directory-maven-plugin.version>
     <versions-maven-plugin.version>2.5</versions-maven-plugin.version>
-    <maven-failsafe-plugin.version>2.20</maven-failsafe-plugin.version>
+    <maven-failsafe-plugin.version>2.22.1</maven-failsafe-plugin.version>
     <docker-maven-plugin.version>0.27.2</docker-maven-plugin.version>
     <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
     <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
