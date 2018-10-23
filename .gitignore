@@ -18,6 +18,7 @@ atlassian-ide-plugin.xml
 .settings/
 .idea/
 .gradle/
+.vscode/
 
 pom.xml.releaseBackup
 release.properties
