@@ -102,6 +102,7 @@
     <testcontainers.version>1.9.1</testcontainers.version>
     <vertx.version>3.5.4</vertx.version>
     <vertx-grpc.version>1.15.0</vertx-grpc.version>
+    <jool.version>0.9.14</jool.version>
 
     <!-- test dependencies -->
     <junit.version>4.12</junit.version>
@@ -165,6 +166,12 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-grpc</artifactId>
       <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jool-java-8</artifactId>
+      <version>${jool.version}</version>
     </dependency>
 
     <!-- test -->

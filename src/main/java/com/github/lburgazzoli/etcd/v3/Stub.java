@@ -18,9 +18,8 @@ package com.github.lburgazzoli.etcd.v3;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
-
-import com.github.lburgazzoli.etcd.v3.util.ThrowingBiConsumer;
 
 public class Stub<S extends io.grpc.stub.AbstractStub<S>> {
     private final Executor executor;
@@ -31,14 +30,10 @@ public class Stub<S extends io.grpc.stub.AbstractStub<S>> {
         this.executor = executor;
     }
 
-    public <R, E extends Exception> CompletableFuture<R> execute(ThrowingBiConsumer<S, CompletableFuture<R>, E> consumer) {
+    public <R, E extends Exception> CompletableFuture<R> execute(BiConsumer<S, CompletableFuture<R>> consumer) {
         CompletableFuture<R> future = new CompletableFuture<>();
 
-        try {
-            consumer.accept(stub, future);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        consumer.accept(stub, future);
 
         return future.thenApplyAsync(Function.identity(), executor);
     }
