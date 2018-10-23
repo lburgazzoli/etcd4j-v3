@@ -16,44 +16,27 @@
  */
 package com.github.lburgazzoli.etcd.v3;
 
-import java.util.concurrent.TimeUnit;
-
 import com.github.lburgazzoli.etcd.v3.model.GetResponse;
 import com.github.lburgazzoli.etcd.v3.model.PutResponse;
+import com.github.lburgazzoli.etcd.v3.support.EtcdClusterResource;
 import org.junit.Assert;
-import org.junit.Ignore;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class KeyValueIT extends TestSupport {
+public class KeyValueTest {
+    private static Logger LOGGER = LoggerFactory.getLogger(KeyValueTest.class);
+
+    @ClassRule
+    public static final EtcdClusterResource cluster = new EtcdClusterResource("kv", 1);
+
     @Test
-    public void test() throws Exception {
-        Etcd etcd = Etcd.builder().endpoints(ETCD_ENDPOINTS).build();
+    public void test() {
+        Etcd etcd = Etcd.builder().endpoints(cluster.cluster().getClientEndpoints()).build();
 
         PutResponse put = etcd.put("key", "value").get();
         GetResponse get = etcd.get("key").get();
-
-        Assert.assertFalse(put.hasPrevKv());
-        Assert.assertFalse(get.getMore());
-        Assert.assertEquals(1, get.getCount());
-        Assert.assertEquals("key", get.getKvs().get(0).getKey());
-        Assert.assertEquals("value", get.getKvs().get(0).getValue());
-    }
-
-    @Ignore
-    @Test
-    public void testWithAuth() throws Exception {
-        Etcd etcd = Etcd.builder().endpoints(ETCD_ENDPOINTS).user("test").password("test").build();
-
-        PutResponse put = etcd.put("key", "value").get();
-        GetResponse get;
-
-        for (int i = 0; i < 6; i++) {
-            LOGGER.info("Wait ({}) ...", i);
-            Thread.sleep(TimeUnit.MINUTES.toMillis(1));
-        }
-
-        LOGGER.info("Do get ...");
-        get = etcd.get("key").get();
 
         Assert.assertFalse(put.hasPrevKv());
         Assert.assertFalse(get.getMore());

@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
   <Appenders>
-    <Console name="stdout" target="SYSTEM_OUT">
+    <Console name="STDOUT" target="SYSTEM_OUT">
       <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
     </Console>
-    <File name="file" fileName="target/etcd4j-v3.log" immediateFlush="false" append="false">
+    <File name="FILE" fileName="target/etcd4j-v3.log" immediateFlush="false" append="false">
       <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
     </File>
   </Appenders>
   <Loggers>
     <Logger name="io.netty" level="INFO"/>
     <Logger name="com.github.lburgazzoli" level="DEBUG"/>
+    <Logger name="com.github.lburgazzoli.etcd.v3.support" level="INFO"/>
+    <Logger name="org.testcontainers" level="INFO"/>
+    <Logger name="🐳 [gcr.io/etcd-development/etcd:v3.3]" level="WARN"/>
 
     <Root level="INFO">
-      <AppenderRef ref="stdout"/>
+      <AppenderRef ref="STDOUT"/>
     </Root>
   </Loggers>
 </Configuration>
