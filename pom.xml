@@ -354,7 +354,6 @@
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>${maven-javadoc-plugin.version}</version>
             <configuration>
-              <aggregate>true</aggregate>
               <encoding>UTF-8</encoding>
               <excludePackageNames>*.protobuf.*</excludePackageNames>
             </configuration>
