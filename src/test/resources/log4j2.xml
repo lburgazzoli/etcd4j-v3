@@ -12,7 +12,7 @@
     <Logger name="io.netty" level="INFO"/>
     <Logger name="com.github.lburgazzoli.etcd.v3" level="DEBUG"/>
     <Logger name="com.github.lburgazzoli.etcd.v3.support" level="INFO"/>
-    <Logger name="🐳 [gcr.io/etcd-development/etcd:v3.3]" level="INFO"/>
+    <Logger name="🐳 [gcr.io/etcd-development/etcd:v3.3]" level="DEBUG"/>
 
     <Root level="INFO">
       <AppenderRef ref="STDOUT"/>

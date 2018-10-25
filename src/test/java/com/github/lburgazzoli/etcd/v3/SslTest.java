@@ -18,7 +18,6 @@ package com.github.lburgazzoli.etcd.v3;
 
 import com.github.lburgazzoli.etcd.v3.support.EtcdClusterResource;
 import io.vertx.core.net.PemKeyCertOptions;
-import io.vertx.core.net.PemTrustOptions;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -38,10 +37,6 @@ public class SslTest {
             .clientOptionsHandler(options -> {
                 options.setSsl(true);
                 options.setUseAlpn(true);
-                options.setTrustOptions(
-                    new PemTrustOptions()
-                        .addCertPath(root + "/src/test/resources//ssl/cert/ca.pem")
-                );
                 options.setPemKeyCertOptions(
                     new PemKeyCertOptions()
                         .addKeyPath(root + "/src/test/resources//ssl/cert/ca-key.pem")
