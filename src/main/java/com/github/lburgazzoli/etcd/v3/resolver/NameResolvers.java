@@ -63,7 +63,7 @@ final class NameResolvers {
 
         @Override
         public String getServiceAuthority() {
-            return URI.create("//" + EtcdConstants.STATIC_RESOLVER).getAuthority();
+            return "etcd0";
         }
 
         @Override

@@ -10,10 +10,9 @@
   </Appenders>
   <Loggers>
     <Logger name="io.netty" level="INFO"/>
-    <Logger name="com.github.lburgazzoli" level="DEBUG"/>
+    <Logger name="com.github.lburgazzoli.etcd.v3" level="DEBUG"/>
     <Logger name="com.github.lburgazzoli.etcd.v3.support" level="INFO"/>
-    <Logger name="org.testcontainers" level="INFO"/>
-    <Logger name="🐳 [gcr.io/etcd-development/etcd:v3.3]" level="WARN"/>
+    <Logger name="🐳 [gcr.io/etcd-development/etcd:v3.3]" level="INFO"/>
 
     <Root level="INFO">
       <AppenderRef ref="STDOUT"/>

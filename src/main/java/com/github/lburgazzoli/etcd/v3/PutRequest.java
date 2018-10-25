@@ -41,7 +41,11 @@ class PutRequest extends AbstractRequest<KVGrpc.KVVertxStub, PutResponse> {
                 .build();
 
         stub.put(request, h -> {
-            future.complete(new PutResponse(h.result()));
+            if (h.succeeded()) {
+                future.complete(new PutResponse(h.result()));
+            } else {
+                future.completeExceptionally(h.cause());
+            }
         });
     }
 }

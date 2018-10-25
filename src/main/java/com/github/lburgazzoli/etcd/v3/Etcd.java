@@ -49,8 +49,9 @@ import io.grpc.MethodDescriptor;
 import io.grpc.NameResolver;
 import io.grpc.PickFirstBalancerFactory;
 import io.grpc.stub.AbstractStub;
-import io.netty.handler.ssl.SslContext;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.net.ClientOptionsBase;
 import io.vertx.grpc.VertxChannelBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class Etcd implements AutoCloseable {
     private String password;
     private String resolver;
     private Set<String> endpoints;
-    private SslContext sslContext;
+    private Handler<ClientOptionsBase> clientOptionsHandler;
     private NameResolver.Factory nameResolverFactory;
     private LoadBalancer.Factory loadBalancerFactory;
     private ManagedChannel managedChannel;
@@ -160,12 +161,8 @@ public class Etcd implements AutoCloseable {
             builder.usePlaintext(true);
             builder.intercept(new Interceptor());
 
-            if (sslContext != null) {
-                // TODO
-                builder.useSsl(options -> {
-                    options.setSsl(true);
-                    options.setUseAlpn(true);
-                });
+            if (clientOptionsHandler != null) {
+                builder.useSsl(clientOptionsHandler);
             }
 
             if (nameResolverFactory != null) {
@@ -273,7 +270,7 @@ public class Etcd implements AutoCloseable {
         private String password;
         private Set<String> endpoints;
         private String resolver;
-        private SslContext sslContext;
+        private Handler<ClientOptionsBase> clientOptionsHandler;
         private NameResolver.Factory nameResolverFactory;
         private LoadBalancer.Factory loadBalancerFactory;
         private Long tokenExpirationTime;
@@ -388,13 +385,14 @@ public class Etcd implements AutoCloseable {
             return resolver;
         }
 
-        public Builder sslContext(SslContext sslContext) {
-            this.sslContext = sslContext;
+
+        public Builder clientOptionsHandler(Handler<ClientOptionsBase> clientOptionsHandler) {
+            this.clientOptionsHandler = clientOptionsHandler;
             return this;
         }
 
-        public SslContext sslContext() {
-            return sslContext;
+        public Handler<ClientOptionsBase> clientOptionsHandler() {
+            return clientOptionsHandler;
         }
 
         public NameResolver.Factory nameResolverFactory() {
@@ -431,7 +429,7 @@ public class Etcd implements AutoCloseable {
             etcd.endpoints = ofNullable(endpoints).orElseGet(Collections::emptySet);
             etcd.resolver = ofNullable(resolver).orElse(EtcdConstants.DEFAULT_RESOLVER);
             etcd.endpoints = ofNullable(endpoints).orElseGet(Collections::emptySet);
-            etcd.sslContext = ofNullable(sslContext).orElse(null);
+            etcd.clientOptionsHandler = ofNullable(clientOptionsHandler).orElse(null);
             etcd.nameResolverFactory = ofNullable(nameResolverFactory).orElseGet(() -> new NameResolverFactory(etcd.endpoints));
             etcd.loadBalancerFactory = ofNullable(loadBalancerFactory).orElseGet(PickFirstBalancerFactory::getInstance);
 
