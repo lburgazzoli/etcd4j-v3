@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,12 +18,14 @@ package com.github.lburgazzoli.etcd.v3;
 
 import com.github.lburgazzoli.etcd.v3.support.EtcdClusterResource;
 import io.vertx.core.net.PemKeyCertOptions;
+import io.vertx.core.net.SSLEngineOptions;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-@Ignore
+import java.io.File;
+
 public class SslTest {
     @Rule
     public final EtcdClusterResource cluster = new EtcdClusterResource("etcd-ssl", 1, true);
@@ -31,19 +33,21 @@ public class SslTest {
     @Test(timeout = 5000)
     public void testSimpleSllSetup() throws Exception {
         String root = System.getProperty("project.path");
-
+        System.out.println("root: " + root + " / " + new File(root + "/src/test/resources/ssl/cert/ca.pem").exists());
         Etcd etcd = Etcd.builder()
-            .endpoints(cluster.cluster().getClientEndpoints())
-            .clientOptionsHandler(options -> {
-                options.setSsl(true);
-                options.setUseAlpn(true);
-                options.setPemKeyCertOptions(
-                    new PemKeyCertOptions()
-                        .addKeyPath(root + "/src/test/resources//ssl/cert/ca-key.pem")
-                        .addCertPath(root + "/src/test/resources//ssl/cert/ca.pem")
-                );
-            })
-            .build();
+                .endpoints(cluster.cluster().getClientEndpoints())
+                .clientOptionsHandler(options -> {
+                    options
+                            .setSsl(true)
+                            .setUseAlpn(true)
+                            .setTrustAll(true)
+                            .setPemKeyCertOptions(
+                                    new PemKeyCertOptions()
+                                            .addKeyPath(root + "/src/test/resources/ssl/cert/ca-key.pem")
+                                            .addCertPath(root + "/src/test/resources/ssl/cert/ca.pem")
+                            );
+                })
+                .build();
 
         PutResponse put = etcd.put("key", "value").get();
         GetResponse get = etcd.get("key").get();

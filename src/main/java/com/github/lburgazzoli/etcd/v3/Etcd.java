@@ -158,11 +158,12 @@ public class Etcd implements AutoCloseable {
 
             VertxChannelBuilder builder = VertxChannelBuilder.forTarget(vertx, this.resolver);
 
-            builder.usePlaintext(true);
             builder.intercept(new Interceptor());
 
             if (clientOptionsHandler != null) {
                 builder.useSsl(clientOptionsHandler);
+            } else {
+                builder.usePlaintext(true);
             }
 
             if (nameResolverFactory != null) {
