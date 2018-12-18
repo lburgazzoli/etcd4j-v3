@@ -100,7 +100,7 @@
     <!-- should be in sync with protobuf grpc dependencies -->
     <protobuf.version>3.5.1</protobuf.version>
     <testcontainers.version>1.10.2</testcontainers.version>
-    <vertx.version>3.6.1</vertx.version>
+    <vertx.version>3.6.2</vertx.version>
     <vertx-grpc.version>1.15.0</vertx-grpc.version>
     <jool.version>0.9.14</jool.version>
 
