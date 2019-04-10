@@ -91,7 +91,7 @@
     <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
 
     <!-- dependencies -->
-    <grpc.version>1.19.0</grpc.version>
+    <grpc.version>1.20.0</grpc.version>
     <slf4j.version>1.7.26</slf4j.version>
     <plexus-compiler-javac-errorprone.version>2.8.4</plexus-compiler-javac-errorprone.version>
     <error-prone-core.version>2.2.0</error-prone-core.version>
