@@ -18,36 +18,31 @@ package com.github.lburgazzoli.etcd.v3;
 
 import com.github.lburgazzoli.etcd.v3.support.EtcdClusterResource;
 import io.vertx.core.net.PemKeyCertOptions;
-import io.vertx.core.net.SSLEngineOptions;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.File;
-
 public class SslTest {
     @Rule
-    public final EtcdClusterResource cluster = new EtcdClusterResource("etcd-ssl", 1, true);
+    public final EtcdClusterResource cluster = new EtcdClusterResource("etcd-ssl", true);
 
     @Test(timeout = 5000)
-    public void testSimpleSllSetup() throws Exception {
+    public void testSimpleSllSetup() {
         String root = System.getProperty("project.path");
-        System.out.println("root: " + root + " / " + new File(root + "/src/test/resources/ssl/cert/ca.pem").exists());
         Etcd etcd = Etcd.builder()
-                .endpoints(cluster.cluster().getClientEndpoints())
-                .clientOptionsHandler(options -> {
-                    options
-                            .setSsl(true)
-                            .setUseAlpn(true)
-                            .setTrustAll(true)
-                            .setPemKeyCertOptions(
-                                    new PemKeyCertOptions()
-                                            .addKeyPath(root + "/src/test/resources/ssl/cert/ca-key.pem")
-                                            .addCertPath(root + "/src/test/resources/ssl/cert/ca.pem")
-                            );
-                })
-                .build();
+            .endpoint(cluster.cluster().getClientEndpoints().get(0))
+            .clientOptionsHandler(options -> {
+                options
+                    .setSsl(true)
+                    .setUseAlpn(true)
+                    .setTrustAll(true)
+                    .setPemKeyCertOptions(
+                        new PemKeyCertOptions()
+                            .addKeyPath(root + "/src/test/resources/ssl/cert/ca-key.pem")
+                            .addCertPath(root + "/src/test/resources/ssl/cert/ca.pem")
+                    );
+            })
+            .build();
 
         PutResponse put = etcd.put("key", "value").get();
         GetResponse get = etcd.get("key").get();

@@ -20,18 +20,14 @@ import com.github.lburgazzoli.etcd.v3.support.EtcdClusterResource;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class KeyValueTest {
-    private static Logger LOGGER = LoggerFactory.getLogger(KeyValueTest.class);
-
     @ClassRule
-    public static final EtcdClusterResource cluster = new EtcdClusterResource("kv", 1);
+    public static final EtcdClusterResource cluster = new EtcdClusterResource("kv");
 
     @Test
     public void test() {
-        Etcd etcd = Etcd.builder().endpoints(cluster.cluster().getClientEndpoints()).build();
+        Etcd etcd = Etcd.builder().endpoint(cluster.cluster().getClientEndpoints().get(0)).build();
 
         PutResponse put = etcd.put("key", "value").get();
         GetResponse get = etcd.get("key").get();

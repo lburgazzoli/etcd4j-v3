@@ -22,15 +22,11 @@ public class EtcdClusterResource extends ExternalResource {
   private final EtcdCluster cluster;
 
   public EtcdClusterResource(String clusterName) {
-    this(clusterName, 1, false);
+    this(clusterName, false);
   }
 
-  public EtcdClusterResource(String clusterName, int nodes) {
-    this(clusterName, nodes, false);
-  }
-
-  public EtcdClusterResource(String clusterName, int nodes, boolean ssl) {
-    this.cluster = EtcdClusterFactory.buildCluster(clusterName, nodes, ssl);
+  public EtcdClusterResource(String clusterName, boolean ssl) {
+    this.cluster = EtcdClusterFactory.buildCluster(clusterName, 1, ssl);
   }
 
   public EtcdCluster cluster() {

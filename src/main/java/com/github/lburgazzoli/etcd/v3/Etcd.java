@@ -17,23 +17,16 @@
 package com.github.lburgazzoli.etcd.v3;
 
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
 import com.github.lburgazzoli.etcd.v3.api.AuthGrpc;
 import com.github.lburgazzoli.etcd.v3.api.AuthenticateRequest;
 import com.github.lburgazzoli.etcd.v3.api.KVGrpc;
-import com.github.lburgazzoli.etcd.v3.resolver.NameResolverFactory;
 import com.google.common.base.Strings;
 import com.google.protobuf.ByteString;
 import io.grpc.CallOptions;
@@ -42,12 +35,10 @@ import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
 import io.grpc.ForwardingClientCall;
 import io.grpc.ForwardingClientCallListener;
-import io.grpc.LoadBalancer;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.NameResolver;
-import io.grpc.PickFirstBalancerFactory;
 import io.grpc.stub.AbstractStub;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -63,10 +54,8 @@ public class Etcd implements AutoCloseable {
     private String user;
     private String password;
     private String resolver;
-    private Set<String> endpoints;
+    private String endpoint;
     private Handler<ClientOptionsBase> clientOptionsHandler;
-    private NameResolver.Factory nameResolverFactory;
-    private LoadBalancer.Factory loadBalancerFactory;
     private ManagedChannel managedChannel;
     private long tokenExpirationTime;
     private TimeUnit tokenExpirationTimeUnit;
@@ -156,7 +145,7 @@ public class Etcd implements AutoCloseable {
             executor = Executors.newCachedThreadPool();
             vertx = Vertx.vertx();
 
-            VertxChannelBuilder builder = VertxChannelBuilder.forTarget(vertx, this.resolver);
+            VertxChannelBuilder builder = VertxChannelBuilder.forTarget(vertx, this.endpoint);
 
             builder.intercept(new Interceptor());
 
@@ -164,13 +153,6 @@ public class Etcd implements AutoCloseable {
                 builder.useSsl(clientOptionsHandler);
             } else {
                 builder.usePlaintext(true);
-            }
-
-            if (nameResolverFactory != null) {
-                builder.nameResolverFactory(nameResolverFactory);
-            }
-            if (loadBalancerFactory != null) {
-                builder.loadBalancerFactory(loadBalancerFactory);
             }
 
             managedChannel = builder.build();
@@ -269,11 +251,10 @@ public class Etcd implements AutoCloseable {
     public static class Builder {
         private String user;
         private String password;
-        private Set<String> endpoints;
+        private String endpoint;
         private String resolver;
         private Handler<ClientOptionsBase> clientOptionsHandler;
         private NameResolver.Factory nameResolverFactory;
-        private LoadBalancer.Factory loadBalancerFactory;
         private Long tokenExpirationTime;
         private TimeUnit tokenExpirationTimeUnit;
         private Long tokenExpirationJitter;
@@ -348,32 +329,12 @@ public class Etcd implements AutoCloseable {
             return this;
         }
 
-        public Set<String> endpoints() {
-            if (endpoints == null) {
-                return Collections.emptySet();
-            }
-
-            return endpoints;
+        public String endpoints() {
+            return endpoint;
         }
 
-        public Builder endpoints(String... endpoints) {
-            return endpoints(
-                Arrays.stream(endpoints)
-                    .flatMap(endpoint -> Arrays.stream(endpoint.split(",")))
-                    .collect(Collectors.toList())
-            );
-        }
-
-        public Builder endpoints(Collection<String> endpoints) {
-            if (this.endpoints == null) {
-                this.endpoints = new HashSet<>();
-            }
-
-            endpoints.stream()
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .forEach(this.endpoints::add);
-
+        public Builder endpoint(String endpoint) {
+            this.endpoint = endpoint;
             return this;
         }
 
@@ -405,15 +366,6 @@ public class Etcd implements AutoCloseable {
             return this;
         }
 
-        public LoadBalancer.Factory loadBalancerFactory() {
-            return loadBalancerFactory;
-        }
-
-        public Builder loadBalancerFactory(LoadBalancer.Factory loadBalancerFactory) {
-            this.loadBalancerFactory = loadBalancerFactory;
-            return this;
-        }
-
         /**
          * Constructs a new {@link Etcd} client.
          *
@@ -427,12 +379,9 @@ public class Etcd implements AutoCloseable {
             etcd.tokenExpirationTimeUnit = ofNullable(tokenExpirationTimeUnit).orElse(TimeUnit.MINUTES);
             etcd.tokenExpirationJitter = ofNullable(tokenExpirationJitter).orElse(5L);
             etcd.tokenExpirationJitterUnit = ofNullable(tokenExpirationJitterUnit).orElse(TimeUnit.SECONDS);
-            etcd.endpoints = ofNullable(endpoints).orElseGet(Collections::emptySet);
+            etcd.endpoint = this.endpoint;
             etcd.resolver = ofNullable(resolver).orElse(EtcdConstants.DEFAULT_RESOLVER);
-            etcd.endpoints = ofNullable(endpoints).orElseGet(Collections::emptySet);
             etcd.clientOptionsHandler = ofNullable(clientOptionsHandler).orElse(null);
-            etcd.nameResolverFactory = ofNullable(nameResolverFactory).orElseGet(() -> new NameResolverFactory(etcd.endpoints));
-            etcd.loadBalancerFactory = ofNullable(loadBalancerFactory).orElseGet(PickFirstBalancerFactory::getInstance);
 
             return etcd;
         }
