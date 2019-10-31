@@ -12,12 +12,13 @@ before_install:
   - mkdir -p "$HOME/.sdkman/etc"
   - echo "sdkman_auto_answer=true" > "$HOME/.sdkman/etc/config"
   - echo "sdkman_auto_selfupdate=true" >> "$HOME/.sdkman/etc/config"
-  - sdk install java 8.0.222.hs-adpt
+  - sdk install java $JAVA_SDK
 
 script:
-  - sdk use java 8.0.222.hs-adpt
+  - sdk use java $JAVA_SDK
   - ./mvnw -s .travis-settings.xml install deploy
 
 env:
   global:
   - CI: true
+  - JAVA_SDK: 8.0.232.hs-adpt
