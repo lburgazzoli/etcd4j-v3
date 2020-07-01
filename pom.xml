@@ -95,7 +95,7 @@
     <slf4j.version>1.7.28</slf4j.version>
     <plexus-compiler-javac-errorprone.version>2.8.4</plexus-compiler-javac-errorprone.version>
     <error-prone-core.version>2.2.0</error-prone-core.version>
-    <log4j2.version>2.12.0</log4j2.version>
+    <log4j2.version>2.13.3</log4j2.version>
     <jcommander.version>1.72</jcommander.version>
     <!-- should be in sync with protobuf grpc dependencies -->
     <protobuf.version>3.5.1</protobuf.version>
