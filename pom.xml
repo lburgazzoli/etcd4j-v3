@@ -105,7 +105,7 @@
     <jool.version>0.9.14</jool.version>
 
     <!-- test dependencies -->
-    <junit.version>4.12</junit.version>
+    <junit.version>4.13.1</junit.version>
     <netty-tcnative.version>2.0.25.Final</netty-tcnative.version>
   </properties>
 
